@@ -20,12 +20,7 @@ class _HomePageState extends State<HomePage> {
     @override
     void initState() {
       super.initState();
-      context.read<Songs>().addSong(SampleSong());
-      songFromFile(File(
-              "C:\\Users\\demoh\\Documents\\Code\\Dart\\project_fly\\assets\\posivite_thinking.wav"))
-          .then((Song song) {
-        context.read<Songs>().addSong(song);
-      });
+      context.read<Songs>().updateSongList();
     }
 
     return FlyNavBar();
