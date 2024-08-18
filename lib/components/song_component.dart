@@ -54,7 +54,8 @@ class _SongComponentState extends State<SongComponent> {
                       height: 75.sp,
                       child: SampleSong().albumArt),
                 )),
-            SizedBox(
+            Container(
+              color: Colors.lightBlue,
               height: 50,
               child: ButtonRow(song: widget.song),
             ),
@@ -108,9 +109,14 @@ class ButtonRow extends StatelessWidget {
         SelectableRegion(
             focusNode: FocusNode(),
             selectionControls: MaterialTextSelectionControls(),
-            child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [Text(song.artist ?? ''), Text(song.title)])),
+            child:
+                Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+              Text(
+                song.artist ?? '',
+                style: TextStyle(fontSize: 20),
+              ),
+              Text(song.title)
+            ])),
         // Play button
         IconButton(
             onPressed: () {

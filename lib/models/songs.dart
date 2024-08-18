@@ -19,6 +19,11 @@ class Songs extends ChangeNotifier {
         .then((Song song) {
       addSong(song);
     });
+    songFromFile(File(
+            "C:\\Users\\demoh\\Documents\\Code\\Dart\\project_fly\\assets\\Bubblegum KK short.mp3"))
+        .then((Song song) {
+      addSong(song);
+    });
   }
 
   void removeSong(Song song) {
