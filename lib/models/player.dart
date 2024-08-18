@@ -1,6 +1,10 @@
+import 'dart:io';
+
 import 'package:audio_service/audio_service.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:project_fly/models/song.dart';
 
 class FlyAudioHandler extends BaseAudioHandler
     with QueueHandler, SeekHandler, ChangeNotifier {
@@ -13,6 +17,12 @@ class FlyAudioHandler extends BaseAudioHandler
   get volume => _volume;
   // get isPlaying => !playbackState.isPaused;
   get isPlaying => _player.state == PlayerState.playing;
+
+  void getSongs() async {
+    Directory d = await getApplicationDocumentsDirectory();
+    List<FileSystemEntity> files = d.listSync();
+    notifyListeners();
+  }
 
   /// Defines behavior of the player when the playback is stopped.
   void setReleaseMode(ReleaseMode releaseMode) {

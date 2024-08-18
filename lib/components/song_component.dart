@@ -110,10 +110,7 @@ class ButtonRow extends StatelessWidget {
             selectionControls: MaterialTextSelectionControls(),
             child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(SampleSong().artist),
-                  Text(SampleSong().title)
-                ])),
+                children: [Text(song.artist ?? ''), Text(song.title)])),
         // Play button
         IconButton(
             onPressed: () {

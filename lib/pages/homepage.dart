@@ -1,6 +1,11 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:project_fly/components/home_subpage.dart';
 import 'package:project_fly/components/song_component.dart';
 import 'package:project_fly/models/song.dart';
+import 'package:project_fly/models/songs.dart';
+import 'package:provider/provider.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -12,6 +17,17 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
+    @override
+    void initState() {
+      super.initState();
+      context.read<Songs>().addSong(SampleSong());
+      songFromFile(File(
+              "C:\\Users\\demoh\\Documents\\Code\\Dart\\project_fly\\assets\\posivite_thinking.wav"))
+          .then((Song song) {
+        context.read<Songs>().addSong(song);
+      });
+    }
+
     return FlyNavBar();
   }
 }
@@ -64,7 +80,7 @@ class _FlyNavBarState extends State<FlyNavBar> {
 
 List<Widget> pages = <Widget>[
   Container(
-    child: const Text('Home'),
+    child: HomeSubPage(),
   ),
   Container(
     child: const Text('Search'),
