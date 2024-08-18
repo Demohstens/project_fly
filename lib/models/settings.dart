@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:io' show Platform;
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -27,8 +28,12 @@ class Settings extends ChangeNotifier {
 
 Future<Directory?> selectMusicFolder() async {
   Directory? dir;
-  String? dirPath =
-      await FilePickerIO().getDirectoryPath(dialogTitle: "Select Music folder");
+  String? dirPath = await FilePicker.platform
+      .getDirectoryPath(dialogTitle: "Select Music folder");
+  // await (Platform.isWindows
+  //     ? FilePickerWindows().getDirectoryPath(dialogTitle: "Select Music folder")
+  //     : FilePickerIO().getDirectoryPath(dialogTitle: "Select Music folder"));
+
   dirPath != null ? dir = Directory(dirPath).absolute : dir = null;
   return dir;
 }

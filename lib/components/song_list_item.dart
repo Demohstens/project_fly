@@ -15,7 +15,7 @@ class SongListitem extends StatelessWidget {
       },
       title: Text(song.title),
       subtitle: Text(song.artist ?? ""),
-      leading: const Icon(Icons.music_note),
+      leading: song.albumArt,
       trailing: const Icon(Icons.more_vert),
     );
   }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:project_fly/components/home_subpage.dart';
+import 'package:project_fly/components/song_component.dart';
 import 'package:project_fly/models/player.dart';
 import 'package:project_fly/models/song.dart';
 import 'package:project_fly/models/songs.dart';
@@ -26,38 +27,45 @@ class CurrentlyPlayingIsland extends StatelessWidget {
             maxHeight: 10.h,
           ),
           child: GestureDetector(
+              onTap: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) =>
+                            SongComponent(song: currentSong)));
+              },
               child: Row(
-            children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(10),
-                child: ClipRect(
-                  child: SizedBox(
-                    width: 10.h,
-                    height: 10.h,
-                    child: currentSong.albumArt,
-                  ),
-                ),
-              ),
-              Column(
                 children: [
-                  Text(currentSong.title),
-                  Text(currentSong.artist ?? ""),
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(10),
+                    child: ClipRect(
+                      child: SizedBox(
+                        width: 10.h,
+                        height: 10.h,
+                        child: currentSong.albumArt,
+                      ),
+                    ),
+                  ),
+                  Column(
+                    children: [
+                      Text(currentSong.title),
+                      Text(currentSong.artist ?? ""),
+                    ],
+                  ),
+                  IconButton(
+                    icon: context.watch<FlyAudioHandler>().isPlaying
+                        ? const Icon(Icons.pause)
+                        : const Icon(Icons.play_arrow),
+                    onPressed: () {
+                      context.read<FlyAudioHandler>().togglePlaying();
+                    },
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.skip_next),
+                    onPressed: () {},
+                  ),
                 ],
-              ),
-              IconButton(
-                icon: const Icon(Icons.play_arrow),
-                onPressed: () {},
-              ),
-              IconButton(
-                icon: const Icon(Icons.pause),
-                onPressed: () {},
-              ),
-              IconButton(
-                icon: const Icon(Icons.skip_next),
-                onPressed: () {},
-              ),
-            ],
-          )));
+              )));
     }
   }
 }

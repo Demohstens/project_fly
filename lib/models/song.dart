@@ -29,7 +29,10 @@ class Song {
 
 Future<Song> songFromFile(File f) async {
   final metadata = await MetadataRetriever.fromFile(f);
-  var title = metadata.trackName ?? basenameWithoutExtension(f.path);
+  var title = (metadata.trackName == null || metadata.trackName == ""
+          ? basenameWithoutExtension(f.path)
+          : metadata.trackName) ??
+      "unable to load name";
   var artist = (metadata.trackArtistNames) == null
       ? null
       : metadata.trackArtistNames!.join(', ');

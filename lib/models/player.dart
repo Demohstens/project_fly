@@ -106,17 +106,23 @@ class FlyAudioHandler extends BaseAudioHandler
   }
 
   Future<void> depthSearchFolder(Directory dir) async {
+    print("Searching folder: ${dir.path}");
     await for (FileSystemEntity entity
         in dir.list(recursive: true, followLinks: false)) {
       print(entity);
       if (entity is File) {
-        var v = await songFromFile(entity);
-        addSong(v);
+        if (entity.path.endsWith('.mp3') || entity.path.endsWith('.wav')) {
+          var v = await songFromFile(entity);
+          addSong(v);
+        } else {
+          print("Skipping file ${entity.path}. Format not supported");
+        }
       } else if (entity is Directory) {
         // Optional: Uncomment if you want to recurse into directories as they are found
         // await depthSearchFolder(entity);
       }
     }
+    notifyListeners();
   }
 
   void removeSong(Song song) {

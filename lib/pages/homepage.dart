@@ -46,7 +46,14 @@ class _FlyNavBarState extends State<FlyNavBar> {
       persistentFooterButtons: [CurrentlyPlayingIsland()],
       appBar: AppBar(
         centerTitle: true,
-        title: const Text('Project Fly'),
+        title: TextButton(
+          onPressed: () {
+            context
+                .read<FlyAudioHandler>()
+                .updateSongList(context.read<Settings>().musicDirectory);
+          },
+          child: Text("Project Fly"),
+        ),
       ),
       bottomNavigationBar: NavigationBar(
         selectedIndex: currentPageIndex,
