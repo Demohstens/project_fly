@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:project_fly/components/currently_playing_island.dart';
+import 'package:project_fly/components/fly_drawer.dart';
 import 'package:project_fly/components/home_subpage.dart';
 import 'package:project_fly/models/player.dart';
 import 'package:project_fly/models/settings.dart';
+import 'package:project_fly/pages/settings_page.dart';
 import 'package:provider/provider.dart';
 
 class HomePage extends StatefulWidget {
@@ -42,6 +44,7 @@ class _FlyNavBarState extends State<FlyNavBar> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      drawer: FlyDrawer(),
       persistentFooterAlignment: AlignmentDirectional.centerStart,
       persistentFooterButtons: [CurrentlyPlayingIsland()],
       appBar: AppBar(
