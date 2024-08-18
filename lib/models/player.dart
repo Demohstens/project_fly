@@ -11,15 +11,19 @@ class FlyAudioHandler extends BaseAudioHandler
     with QueueHandler, SeekHandler, ChangeNotifier {
   final _player = AudioPlayer();
   Source? _currentSource;
-  double _volume = 0.5;
+  double _volume = 0.2;
   double playbackSpeed = 1.0;
   Song? _currentSong;
+  bool _isPlaying = false;
+
+  FlyAudioHandler() {
+    _player.setVolume(volume);
+  }
 
   // * Getters * //
   get volume => _volume;
   get currentSong => _currentSong;
-  // get isPlaying => !playbackState.isPaused;
-  get isPlaying => _player.state == PlayerState.playing;
+  get isPlaying => _isPlaying;
 
   void getSongs() async {
     Directory d = await getApplicationDocumentsDirectory();
@@ -31,6 +35,12 @@ class FlyAudioHandler extends BaseAudioHandler
     if (state == PlayerState.stopped || state == PlayerState.disposed) {
       stop();
     }
+  }
+
+  @override
+  Future<void> skipToNext() async {
+    //TODO: Implement skipToNext
+    return;
   }
 
   /// Defines behavior of the player when the playback is stopped.
@@ -57,14 +67,25 @@ class FlyAudioHandler extends BaseAudioHandler
   Future<void> play() async {
     if (_currentSource != null) {
       await _player.play(_currentSource!);
+      _isPlaying = true;
     } else {
       await _player.play(AssetSource('error.mp3'));
     }
+    notifyListeners();
   }
 
-  Future<void> pause() => _player.pause();
+  Future<void> pause() {
+    _isPlaying = false;
+    notifyListeners();
+
+    return _player.pause();
+  }
+
   Future<void> stop() {
+    _isPlaying = false;
     _currentSong = null;
+    notifyListeners();
+
     // _currentSource = null;
     return _player.stop();
   }

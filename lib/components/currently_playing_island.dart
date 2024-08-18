@@ -2,12 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:project_fly/components/song_component.dart';
 import 'package:project_fly/models/player.dart';
 import 'package:project_fly/models/song.dart';
+import 'package:project_fly/pages/song_page.dart';
 import 'package:sizer/sizer.dart';
 import 'package:provider/provider.dart';
 
 class CurrentlyPlayingIsland extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    Icon playingIcon =
+        context.select<FlyAudioHandler, bool>((value) => value.isPlaying)
+            ? Icon(Icons.pause)
+            : Icon(Icons.play_arrow);
+
     Song? currentSong =
         context.select<FlyAudioHandler, Song?>((value) => value.currentSong);
     // TODO: implement build
@@ -21,6 +27,7 @@ class CurrentlyPlayingIsland extends StatelessWidget {
             borderRadius: BorderRadius.circular(8.0),
           ),
           constraints: BoxConstraints(
+            minWidth: 100.w,
             maxWidth: 100.w,
             maxHeight: 10.h,
           ),
@@ -29,39 +36,63 @@ class CurrentlyPlayingIsland extends StatelessWidget {
                 Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) =>
-                            SongComponent(song: currentSong)));
+                        builder: (context) => SongPage(song: currentSong)));
               },
               child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   ClipRRect(
                     borderRadius: BorderRadius.circular(10),
                     child: ClipRect(
                       child: SizedBox(
-                        width: 10.h,
-                        height: 10.h,
+                        width: 30.sp,
+                        height: 30.sp,
                         child: currentSong.albumArt,
                       ),
                     ),
                   ),
-                  Column(
+                  Spacer(),
+                  Expanded(
+                    flex: 4,
+                    child: Container(
+                      constraints: BoxConstraints(
+                        maxWidth: 50.w,
+                      ),
+                      margin: EdgeInsets.symmetric(horizontal: 4),
+                      child: Column(
+                        children: [
+                          Text(
+                            currentSong.title,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          if (currentSong.artist != null)
+                            Text(
+                              currentSong.artist!,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  Row(
                     children: [
-                      Text(currentSong.title),
-                      Text(currentSong.artist ?? ""),
+                      IconButton(
+                        icon: playingIcon,
+                        onPressed: () {
+                          context.read<FlyAudioHandler>().togglePlaying();
+                        },
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.skip_next),
+                        onPressed: () {
+                          context.read<FlyAudioHandler>().skipToNext();
+                        },
+                      ),
                     ],
-                  ),
-                  IconButton(
-                    icon: context.watch<FlyAudioHandler>().isPlaying
-                        ? const Icon(Icons.pause)
-                        : const Icon(Icons.play_arrow),
-                    onPressed: () {
-                      context.read<FlyAudioHandler>().togglePlaying();
-                    },
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.skip_next),
-                    onPressed: () {},
-                  ),
+                  )
                 ],
               )));
     }
