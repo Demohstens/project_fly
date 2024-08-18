@@ -5,15 +5,15 @@ import 'package:project_fly/pages/homepage.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
 
-late FlyAudioPlayer audioHandler;
+late FlyAudioHandler audioHandler;
 Future<void> main() async {
   audioHandler = await AudioService.init(
-      builder: () => FlyAudioPlayer(),
+      builder: () => FlyAudioHandler(),
       config: const AudioServiceConfig(
         androidNotificationChannelId: 'com.demosoftworks.fly.channel.audio',
         androidNotificationChannelName: 'Fly Music',
       ));
-  runApp(Fly());
+  runApp(const Fly());
 }
 
 class Fly extends StatelessWidget {
@@ -24,7 +24,7 @@ class Fly extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
         providers: [
-          ChangeNotifierProvider(create: (_) => FlyAudioProvier(audioHandler)),
+          ChangeNotifierProvider(create: (_) => audioHandler),
         ],
         child: ResponsiveSizer(
           builder: (context, orientation, deviceType) {

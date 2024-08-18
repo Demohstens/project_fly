@@ -1,37 +1,34 @@
 import 'package:audio_service/audio_service.dart';
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
-import 'package:just_audio/just_audio.dart';
 
-class FlyAudioPlayer extends BaseAudioHandler with QueueHandler, SeekHandler {
+class FlyAudioHandler extends BaseAudioHandler
+    with QueueHandler, SeekHandler, ChangeNotifier {
   final _player = AudioPlayer();
-
-  FlyAudioPlayer() {
-    _player
-        .setAudioSource(AudioSource.asset('assets/positive_thinking.mp3'))
-        .catchError((e) {
-      print('Error setting audio source: $e');
-    });
-  }
+  Source? _currentSource;
 
   @override
   Future<void> play() async {
-    try {
-      await _player.play();
-      print("Playing");
-    } catch (e) {
-      print("Error playing audio: $e");
+    if (_currentSource != null) {
+      await _player.play(_currentSource!);
+    } else {
+      await _player.play(AssetSource('error.mp3'));
     }
   }
 
   Future<void> pause() => _player.pause();
   Future<void> stop() => _player.stop();
   Future<void> seek(Duration position) => _player.seek(position);
-  Future<void> skipToQueueItem(int i) => _player.seek(Duration.zero, index: i);
-}
 
-class FlyAudioProvier extends ChangeNotifier {
-  FlyAudioPlayer _audioHandler;
-  FlyAudioProvier(this._audioHandler);
+  void setSource(Source source) {
+    _currentSource = source;
+    // play();
+    notifyListeners();
+  }
 
-  FlyAudioPlayer get audioHandler => _audioHandler;
+  /// Change the volume of the player from 0-1.
+  void changeVolume(double volume) {
+    _player.setVolume(volume);
+    notifyListeners();
+  }
 }

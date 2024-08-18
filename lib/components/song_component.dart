@@ -1,8 +1,10 @@
-import 'package:audio_service/audio_service.dart';
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:project_fly/main.dart';
+import 'package:project_fly/models/player.dart';
 import 'package:project_fly/models/song.dart';
 import 'package:sizer/sizer.dart';
+import 'package:provider/provider.dart';
 
 class SongComponent extends StatefulWidget {
   @override
@@ -28,6 +30,7 @@ class _SongComponentState extends State<SongComponent> {
               Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
             const Icon(Icons.favorite),
             const Icon(Icons.skip_previous),
+            IconButton(onPressed: () {}, icon: Icon(Icons.audio_file)),
             SelectableRegion(
                 focusNode: FocusNode(),
                 selectionControls: MaterialTextSelectionControls(),
@@ -42,7 +45,11 @@ class _SongComponentState extends State<SongComponent> {
                   audioHandler.play();
                 },
                 icon: Icon(Icons.play_arrow)),
-            const Icon(Icons.skip_next),
+            IconButton(
+                onPressed: () => context
+                    .read<FlyAudioHandler>()
+                    .setSource(AssetSource("positive_thinking.wav")),
+                icon: Icon(Icons.skip_next)),
             const Icon(Icons.playlist_add),
           ]),
         ),

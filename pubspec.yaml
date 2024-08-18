@@ -38,6 +38,9 @@ dependencies:
   sizer: ^3.0.3
 
   audioplayers: ^6.0.0
+  audioplayers_windows: ^4.0.0
+  audio_service: ^0.18.15
+  file_picker: ^8.0.7
 
 dev_dependencies:
   flutter_test:
@@ -62,3 +65,4 @@ flutter:
   assets:
     - assets/images/positive_thinking.jpg
     - assets/positive_thinking.wav
+    - assets/error.mp3
