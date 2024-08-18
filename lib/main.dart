@@ -39,6 +39,12 @@ class Fly extends StatelessWidget {
                 colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
                 useMaterial3: true,
               ),
+              darkTheme: ThemeData.dark(
+                useMaterial3: true,
+              ),
+              themeMode: context.watch<Settings>().isDarkMode
+                  ? ThemeMode.dark
+                  : ThemeMode.light,
               home: HomePage(),
             );
           },

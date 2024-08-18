@@ -37,7 +37,12 @@ Future<Song> songFromFile(File f) async {
       ? null
       : metadata.trackArtistNames!.join(', ');
   var genre = metadata.genre;
-  var releaseDate = metadata.year == null ? null : DateTime(metadata.year!);
+  var releaseDate;
+  try {
+    releaseDate = metadata.year == null ? null : DateTime(metadata.year!);
+  } catch (e) {
+    releaseDate = null;
+  }
   Duration duration = Duration(milliseconds: metadata.trackDuration ?? 0);
   var albumArt = metadata.albumArt == null
       ? Image.asset('assets/images/placeholder_album_art.png')

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:project_fly/components/progress_slider.dart';
 import 'package:project_fly/components/song_component.dart';
 import 'package:project_fly/models/player.dart';
 import 'package:project_fly/models/song.dart';
@@ -20,14 +21,6 @@ class CurrentlyPlayingIsland extends StatelessWidget {
     if (currentSong == null) {
       return Container();
     } else {
-      double maxDuration = currentSong.duration?.inMilliseconds.toDouble() ?? 0;
-      double currentDuration = context
-              .watch<FlyAudioHandler>()
-              .currentDuration
-              ?.inMilliseconds
-              .toDouble() ??
-          0;
-
       return Container(
         decoration: BoxDecoration(
           color: const Color.fromARGB(141, 127, 174, 217),
@@ -37,7 +30,7 @@ class CurrentlyPlayingIsland extends StatelessWidget {
         constraints: BoxConstraints(
           minWidth: 100.w,
           maxWidth: 100.w,
-          maxHeight: 10.h,
+          maxHeight: 15.h,
         ),
         child: GestureDetector(
           onTap: () {
@@ -47,34 +40,17 @@ class CurrentlyPlayingIsland extends StatelessWidget {
                     builder: (context) => SongPage(song: currentSong)));
           },
           child: Column(children: [
-            SliderTheme(
-              data: SliderThemeData(
-                trackHeight: 1.0,
-                trackShape: RoundedRectSliderTrackShape(),
-              ),
-              child: Slider(
-                min: 0,
-                max: maxDuration > 0
-                    ? maxDuration
-                    : 1, // Prevents max from being 0
-                value: currentDuration.clamp(0, maxDuration),
-                onChanged: maxDuration > 0
-                    ? (v) {
-                        context
-                            .read<FlyAudioHandler>()
-                            .seekTo(Duration(milliseconds: v.toInt()));
-                      }
-                    : null, // Disables the slider if maxDuration is 0
-              ),
-            ),
+            ProgressSlider(),
             Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(10),
-                child: ClipRect(
-                  child: SizedBox(
-                    width: 30.sp,
-                    height: 30.sp,
-                    child: currentSong.albumArt,
+              Expanded(
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(10),
+                  child: ClipRect(
+                    child: SizedBox(
+                      width: 10.w,
+                      height: 10.h,
+                      child: currentSong.albumArt,
+                    ),
                   ),
                 ),
               ),
@@ -104,6 +80,7 @@ class CurrentlyPlayingIsland extends StatelessWidget {
                   ),
                 ),
               ),
+              Spacer(),
               Row(
                 children: [
                   IconButton(
