@@ -1,10 +1,9 @@
 import 'dart:io';
 
 import 'package:audioplayers/audioplayers.dart';
+import 'package:audiotags/audiotags.dart';
 import 'package:flutter/material.dart';
-import 'package:path/path.dart';
-
-import 'package:flutter_media_metadata/flutter_media_metadata.dart';
+import 'package:path/path.dart' as path;
 
 class Song {
   final Source source;
@@ -28,14 +27,22 @@ class Song {
 }
 
 Future<Song> songFromFile(File f) async {
-  final metadata = await MetadataRetriever.fromFile(f);
-  var title = (metadata.trackName == null || metadata.trackName == ""
-          ? basenameWithoutExtension(f.path)
-          : metadata.trackName) ??
+  Tag? metadata;
+  try {
+    metadata = await AudioTags.read(f.path);
+  } catch (e) {
+    print("CANNOT LOAD METADATA $e");
+    return SampleSong();
+  }
+
+  if (metadata == null) {
+    return SampleSong();
+  }
+  var title = (metadata.title == null || metadata.title == ""
+          ? path.basenameWithoutExtension(f.path)
+          : metadata.title) ??
       "unable to load name";
-  var artist = (metadata.trackArtistNames) == null
-      ? null
-      : metadata.trackArtistNames!.join(', ');
+  var artist = metadata.trackArtist;
   var genre = metadata.genre;
   var releaseDate;
   try {
@@ -43,10 +50,11 @@ Future<Song> songFromFile(File f) async {
   } catch (e) {
     releaseDate = null;
   }
-  Duration duration = Duration(milliseconds: metadata.trackDuration ?? 0);
-  var albumArt = metadata.albumArt == null
+  Duration duration = Duration(milliseconds: metadata.duration! * 1000);
+  print(duration);
+  var albumArt = metadata.pictures.isEmpty
       ? Image.asset('assets/images/placeholder_album_art.png')
-      : Image.memory(metadata.albumArt!);
+      : Image.memory(metadata.pictures.first.bytes);
   var lyrics = 'Lyrics not implemented yet :c'; // TODO Implement lyrics
   var source = DeviceFileSource(f.path);
   return Song(

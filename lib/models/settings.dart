@@ -58,9 +58,8 @@ class Settings extends ChangeNotifier {
 
 Future<Directory?> selectMusicFolder() async {
   Directory? dir;
-  if (Permission.manageExternalStorage.isGranted == false) {
-    Permission.manageExternalStorage.request();
-  }
+  Permission.manageExternalStorage.request();
+
   String? dirPath = await FilePicker.platform
       .getDirectoryPath(dialogTitle: "Select Music folder");
 

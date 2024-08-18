@@ -37,15 +37,16 @@ dependencies:
   provider: ^6.1.2
   sizer: ^3.0.3
 
-  audioplayers: ^6.0.0
-  audioplayers_windows: ^4.0.0
+  audioplayers: any
+  audioplayers_windows: any
   audio_service: ^0.18.15
   file_picker: any
   aura_box: ^1.0.2
-  flutter_media_metadata: ^1.0.0
+  # flutter_media_metadata: any
   path_provider: ^2.1.4
   permission_handler: ^11.3.1
   shared_preferences: ^2.3.2
+  audiotags: ^1.4.1
 
 dev_dependencies:
   flutter_test:

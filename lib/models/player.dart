@@ -141,7 +141,7 @@ class FlyAudioHandler extends BaseAudioHandler
         in dir.list(recursive: true, followLinks: false)) {
       print(entity);
       if (entity is File) {
-        if (entity.path.endsWith('.mp3') || entity.path.endsWith('.wav')) {
+        if (entity.path.endsWith('.mp3')) {
           var v = await songFromFile(entity);
           addSong(v);
         } else {
