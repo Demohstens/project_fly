@@ -1,5 +1,6 @@
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
+import 'package:project_fly/components/progress_slider.dart';
 import 'package:project_fly/main.dart';
 import 'package:project_fly/models/player.dart';
 import 'package:project_fly/models/song.dart';
@@ -60,13 +61,14 @@ class _SongPageState extends State<SongPage> {
                 borderRadius: BorderRadius.circular(8.0),
               ),
               child: Column(children: [
+                // Image
                 ClipRRect(
                     borderRadius: BorderRadius.circular(10),
                     child: ClipRect(
                       child: SizedBox(
                           width: 75.sp,
                           height: 75.sp,
-                          child: SampleSong().albumArt),
+                          child: widget.song.albumArt),
                     )),
                 Container()
               ]),
@@ -80,81 +82,87 @@ class ButtonRow extends StatelessWidget {
   final FocusNode childFocusNode = FocusNode();
   final MenuController menuController = MenuController();
   @override
-  Widget build(BuildContext context) =>
-      Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
-        const Icon(Icons.favorite),
-        const Icon(Icons.skip_previous),
-        // IconButton(onPressed: () {}, ),
-        MenuAnchor(
-          childFocusNode: childFocusNode,
-          controller: menuController,
-          menuChildren: [
-            MenuItemButton(
-                child: RotatedBox(
-                  quarterTurns: 3,
-                  child: Slider(
-                      value: context.watch<FlyAudioHandler>().volume,
-                      onChanged: (newVolumte) {
-                        context
-                            .read<FlyAudioHandler>()
-                            .changeVolume(newVolumte);
-                      }),
-                ),
-                onPressed: () {
-                  menuController.close();
-                }),
-          ],
-          // Volume control
-          child: IconButton(
-              onPressed: () {
-                if (menuController.isOpen) {
-                  menuController.close();
-                } else {
-                  menuController.open();
-                }
-              },
-              icon: getVolumeIcon(context)),
-        ),
-        // Song info
-        Expanded(
-          flex: 2,
-          child: SelectableRegion(
-              focusNode: FocusNode(),
-              selectionControls: MaterialTextSelectionControls(),
-              child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      song.title,
-                      style:
-                          TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                      overflow: TextOverflow.ellipsis,
+  Widget build(BuildContext context) => Column(
+        children: [
+          const Expanded(
+            child: ProgressSlider(),
+          ),
+          Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
+            const Icon(Icons.favorite),
+            const Icon(Icons.skip_previous),
+            // IconButton(onPressed: () {}, ),
+            MenuAnchor(
+              childFocusNode: childFocusNode,
+              controller: menuController,
+              menuChildren: [
+                MenuItemButton(
+                    child: RotatedBox(
+                      quarterTurns: 3,
+                      child: Slider(
+                          value: context.watch<FlyAudioHandler>().volume,
+                          onChanged: (newVolumte) {
+                            context
+                                .read<FlyAudioHandler>()
+                                .changeVolume(newVolumte);
+                          }),
                     ),
-                    if (song.artist != null)
-                      Text(song.artist!,
-                          style: TextStyle(fontSize: 15),
-                          overflow: TextOverflow.ellipsis),
-                    // TODO fix aligment.
-                  ])),
-        ),
-        // Play button
-        IconButton(
-            onPressed: () {
-              context
-                  .read<FlyAudioHandler>()
-                  .setSource(song.source); // TODO: Fix this
-              audioHandler.togglePlaying();
-            },
-            icon: context.watch<FlyAudioHandler>().isPlaying
-                ? Icon(Icons.pause)
-                : Icon(Icons.play_arrow)),
-        IconButton(
-            onPressed: () => context
-                .read<FlyAudioHandler>()
-                .setSource(AssetSource("error.mp3")),
-            icon: Icon(Icons.skip_next)),
-        const Icon(Icons.playlist_add),
-      ]);
+                    onPressed: () {
+                      menuController.close();
+                    }),
+              ],
+              // Volume control
+              child: IconButton(
+                  onPressed: () {
+                    if (menuController.isOpen) {
+                      menuController.close();
+                    } else {
+                      menuController.open();
+                    }
+                  },
+                  icon: getVolumeIcon(context)),
+            ),
+            // Song info
+            Expanded(
+              flex: 2,
+              child: SelectableRegion(
+                  focusNode: FocusNode(),
+                  selectionControls: MaterialTextSelectionControls(),
+                  child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          song.title,
+                          style: TextStyle(
+                              fontSize: 15, fontWeight: FontWeight.bold),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        if (song.artist != null)
+                          Text(song.artist!,
+                              style: TextStyle(fontSize: 15),
+                              overflow: TextOverflow.ellipsis),
+                        // TODO fix aligment.
+                      ])),
+            ),
+            // Play button
+            IconButton(
+                onPressed: () {
+                  context
+                      .read<FlyAudioHandler>()
+                      .setSource(song.source); // TODO: Fix this
+                  audioHandler.togglePlaying();
+                },
+                icon: context.watch<FlyAudioHandler>().isPlaying
+                    ? Icon(Icons.pause)
+                    : Icon(Icons.play_arrow)),
+            IconButton(
+                onPressed: () => context
+                    .read<FlyAudioHandler>()
+                    .setSource(AssetSource("error.mp3")),
+                icon: Icon(Icons.skip_next)),
+            const Icon(Icons.playlist_add),
+          ]),
+        ],
+      );
 }
 
 Icon getVolumeIcon(BuildContext context) {

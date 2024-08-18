@@ -4,7 +4,6 @@ import 'package:audio_service/audio_service.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:project_fly/models/song.dart';
 
 class FlyAudioHandler extends BaseAudioHandler
@@ -15,19 +14,29 @@ class FlyAudioHandler extends BaseAudioHandler
   double playbackSpeed = 1.0;
   Song? _currentSong;
   bool _isPlaying = false;
+  Duration? _currentDuration;
 
   FlyAudioHandler() {
     _player.setVolume(volume);
+
+    _player.onPositionChanged.listen((state) {
+      _onPositionChanged(state);
+    });
   }
 
   // * Getters * //
   get volume => _volume;
   get currentSong => _currentSong;
   get isPlaying => _isPlaying;
+  Duration? get currentDuration => _currentDuration;
 
-  void getSongs() async {
-    Directory d = await getApplicationDocumentsDirectory();
-    List<FileSystemEntity> files = d.listSync();
+  // void getSongs() async {
+  //   Directory d = await getApplicationDocumentsDirectory();
+  //   List<FileSystemEntity> files = d.listSync();
+  //   notifyListeners();
+  // }
+  void _onPositionChanged(Duration position) {
+    _currentDuration = position;
     notifyListeners();
   }
 
@@ -90,7 +99,7 @@ class FlyAudioHandler extends BaseAudioHandler
     return _player.stop();
   }
 
-  Future<void> seek(Duration position) => _player.seek(position);
+  Future<void> seekTo(Duration position) => _player.seek(position);
 
   void setSource(Source source) {
     _currentSource = source;
