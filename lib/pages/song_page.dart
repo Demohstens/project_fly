@@ -60,13 +60,14 @@ class _SongPageState extends State<SongPage> {
                 borderRadius: BorderRadius.circular(8.0),
               ),
               child: Column(children: [
+                // Image
                 ClipRRect(
                     borderRadius: BorderRadius.circular(10),
                     child: ClipRect(
                       child: SizedBox(
                           width: 75.sp,
                           height: 75.sp,
-                          child: SampleSong().albumArt),
+                          child: widget.song.albumArt),
                     )),
                 Container()
               ]),
