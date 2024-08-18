@@ -6,6 +6,27 @@ class FlyAudioHandler extends BaseAudioHandler
     with QueueHandler, SeekHandler, ChangeNotifier {
   final _player = AudioPlayer();
   Source? _currentSource;
+  double _volume = 0.5;
+  double playbackSpeed = 1.0;
+
+  // * Getters * //
+  get volume => _volume;
+  // get isPlaying => !playbackState.isPaused;
+  get isPlaying => _player.state == PlayerState.playing;
+
+  /// Defines behavior of the player when the playback is stopped.
+  void setReleaseMode(ReleaseMode releaseMode) {
+    _player.setReleaseMode(releaseMode);
+    notifyListeners();
+  }
+
+  void togglePlaying() {
+    if (isPlaying) {
+      pause();
+    } else {
+      play();
+    }
+  }
 
   @override
   Future<void> play() async {
@@ -27,8 +48,9 @@ class FlyAudioHandler extends BaseAudioHandler
   }
 
   /// Change the volume of the player from 0-1.
-  void changeVolume(double volume) {
-    _player.setVolume(volume);
+  void changeVolume(double volume) async {
+    await _player.setVolume(volume);
+    _volume = volume;
     notifyListeners();
   }
 }
