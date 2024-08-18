@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:project_fly/components/song_component.dart';
+import 'package:project_fly/models/player.dart';
 import 'package:project_fly/models/song.dart';
+import 'package:provider/provider.dart';
 
 class SongListitem extends StatelessWidget {
   final Song song;
@@ -9,8 +11,7 @@ class SongListitem extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListTile(
       onTap: () {
-        Navigator.push(context,
-            MaterialPageRoute(builder: (context) => SongComponent(song: song)));
+        context.read<FlyAudioHandler>().playSong(song);
       },
       title: Text(song.title),
       subtitle: Text(song.artist ?? ""),

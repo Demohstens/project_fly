@@ -1,11 +1,10 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:project_fly/components/song_list_item.dart';
 import 'package:project_fly/models/player.dart';
+import 'package:project_fly/models/settings.dart';
 import 'package:project_fly/models/song.dart';
-import 'package:project_fly/models/songs.dart';
 import 'package:provider/provider.dart';
+import 'package:sizer/sizer.dart';
 
 class HomeSubPage extends StatelessWidget {
   const HomeSubPage({Key? key}) : super(key: key);
@@ -22,24 +21,68 @@ class ListOfSongs extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    List<Song> songs = context.watch<Songs>().songs;
-    return Stack(children: [
-      ListView.builder(
-        itemCount: songs.length == 0 ? 1 : songs.length,
-        itemBuilder: (context, index) {
-          if (songs.isEmpty) {
-            return const Center(
-              child: Text("No songs found"),
-            );
-          } else {
-            Song song = songs[index];
-            return SongListitem(song: song);
-          }
+    List<Song> songs = context.watch<FlyAudioHandler>().songs;
+    return RefreshIndicator(
+        onRefresh: () async {
+          return context
+              .read<FlyAudioHandler>()
+              .updateSongList(context.read<Settings>().musicDirectory);
         },
-      ),
-      FloatingActionButton(onPressed: () {
-        context.read<Songs>().updateSongList();
-      })
-    ]);
+        child: Row(children: [
+          Flexible(
+            child: ListView.builder(
+              itemCount: songs.isEmpty ? 1 : songs.length,
+              itemBuilder: (context, index) {
+                if (songs.isEmpty) {
+                  return Center(
+                      child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      Container(
+                          height: 40.h,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                "No Files found.",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 30,
+                                ),
+                              ),
+                            ],
+                          )),
+                      TextButton(
+                          onPressed: () {
+                            selectMusicFolder().then((dir) {
+                              if (dir != null) {
+                                context.read<Settings>().setMusicDirectory(dir);
+                              } else {
+                                print("No valid dir selected.");
+                              }
+                            });
+                          },
+                          child: const Column(
+                            children: [
+                              Text(
+                                "Select Music Folder ",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 20,
+                                ),
+                              ),
+                              Icon(Icons.folder, size: 100),
+                            ],
+                          ))
+                    ],
+                  ));
+                } else {
+                  Song song = songs[index];
+                  return SongListitem(song: song);
+                }
+              },
+            ),
+          )
+        ]));
   }
 }

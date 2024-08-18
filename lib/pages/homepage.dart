@@ -1,10 +1,8 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
+import 'package:project_fly/components/currently_playing_island.dart';
 import 'package:project_fly/components/home_subpage.dart';
-import 'package:project_fly/components/song_component.dart';
-import 'package:project_fly/models/song.dart';
-import 'package:project_fly/models/songs.dart';
+import 'package:project_fly/models/player.dart';
+import 'package:project_fly/models/settings.dart';
 import 'package:provider/provider.dart';
 
 class HomePage extends StatefulWidget {
@@ -20,7 +18,9 @@ class _HomePageState extends State<HomePage> {
     @override
     void initState() {
       super.initState();
-      context.read<Songs>().updateSongList();
+      context
+          .read<FlyAudioHandler>()
+          .updateSongList(context.read<Settings>().musicDirectory);
     }
 
     return FlyNavBar();
@@ -42,6 +42,8 @@ class _FlyNavBarState extends State<FlyNavBar> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      persistentFooterAlignment: AlignmentDirectional.centerStart,
+      persistentFooterButtons: [CurrentlyPlayingIsland()],
       appBar: AppBar(
         centerTitle: true,
         title: const Text('Project Fly'),
