@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:project_fly/components/fly_drawer.dart';
 import 'package:project_fly/models/settings.dart';
 import 'package:provider/provider.dart';
 

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:project_fly/components/progress_slider.dart';
-import 'package:project_fly/components/song_component.dart';
 import 'package:project_fly/models/player.dart';
 import 'package:project_fly/models/song.dart';
 import 'package:project_fly/pages/song_page.dart';
