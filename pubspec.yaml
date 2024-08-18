@@ -44,6 +44,7 @@ dependencies:
   aura_box: ^1.0.2
   flutter_media_metadata: ^1.0.0
   path_provider: ^2.1.4
+  permission_handler: ^11.3.1
 
 dev_dependencies:
   flutter_test:

@@ -8,7 +8,7 @@ import 'package:provider/provider.dart';
 import 'package:aura_box/aura_box.dart';
 
 class SongComponent extends StatefulWidget {
-  Song song;
+  final Song song;
   SongComponent({required this.song});
 
   @override

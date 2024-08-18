@@ -38,9 +38,9 @@ class ListOfSongs extends StatelessWidget {
                       child: Column(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      Container(
+                      SizedBox(
                           height: 40.h,
-                          child: Column(
+                          child: const Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Text(

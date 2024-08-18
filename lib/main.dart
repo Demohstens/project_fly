@@ -10,7 +10,6 @@ import 'package:sizer/sizer.dart';
 late FlyAudioHandler audioHandler;
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized(); // Ensure this is called
-
   audioHandler = await AudioService.init(
       builder: () => FlyAudioHandler(),
       config: const AudioServiceConfig(

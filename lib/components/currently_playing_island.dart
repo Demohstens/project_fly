@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:project_fly/components/home_subpage.dart';
 import 'package:project_fly/components/song_component.dart';
 import 'package:project_fly/models/player.dart';
 import 'package:project_fly/models/song.dart';
-import 'package:project_fly/models/songs.dart';
 import 'package:sizer/sizer.dart';
 import 'package:provider/provider.dart';
 

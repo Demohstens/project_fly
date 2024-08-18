@@ -1,9 +1,9 @@
 import 'dart:io';
-import 'dart:io' show Platform;
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class Settings extends ChangeNotifier {
   bool _isDarkMode = false;
@@ -28,11 +28,11 @@ class Settings extends ChangeNotifier {
 
 Future<Directory?> selectMusicFolder() async {
   Directory? dir;
+  if (Permission.manageExternalStorage.isGranted == false) {
+    Permission.manageExternalStorage.request();
+  }
   String? dirPath = await FilePicker.platform
       .getDirectoryPath(dialogTitle: "Select Music folder");
-  // await (Platform.isWindows
-  //     ? FilePickerWindows().getDirectoryPath(dialogTitle: "Select Music folder")
-  //     : FilePickerIO().getDirectoryPath(dialogTitle: "Select Music folder"));
 
   dirPath != null ? dir = Directory(dirPath).absolute : dir = null;
   return dir;
