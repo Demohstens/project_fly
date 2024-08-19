@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:project_fly/models/player.dart';
+import 'package:project_fly/models/song.dart';
 import 'package:project_fly/pages/settings_page.dart';
 import 'package:project_fly/pages/song_page.dart';
 import 'package:provider/provider.dart';
@@ -67,23 +68,23 @@ class ShortcutCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Expanded(
-        child: Card(
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            child: GestureDetector(
-                onTap: onTap,
-                child: Container(
-                    margin: EdgeInsets.all(6),
-                    padding: EdgeInsets.all(6),
-                    color: color,
-                    constraints: BoxConstraints(minHeight: 50),
-                    child: Row(children: [
-                      icon,
-                      Text(
-                        text,
-                        overflow: TextOverflow.ellipsis,
-                      ), // TODO
-                    ])))));
+        child: GestureDetector(
+            onTap: onTap,
+            child: Container(
+                margin: EdgeInsets.all(9),
+                padding: EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(8),
+                  color: color,
+                ),
+                constraints: BoxConstraints(minHeight: 50),
+                child: Row(children: [
+                  icon,
+                  Text(
+                    text,
+                    overflow: TextOverflow.ellipsis,
+                  ), // TODO
+                ]))));
   }
 }
 
@@ -224,16 +225,22 @@ class CurrentSongCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ShortcutCard(
-        icon: Icon(Icons.music_note),
-        text: "Currently playing...",
-        onTap: () {
-          Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => SongPage(
-                      song: context.read<FlyAudioHandler>().currentSong)));
-        },
-        color: Colors.grey);
+    Song? song = context.watch<FlyAudioHandler>().currentSong;
+    if (song == null) {
+      return ShortcutCard(
+          icon: Icon(Icons.music_note),
+          text: "Currently playing...",
+          onTap: () {},
+          color: Colors.grey);
+    } else {
+      return ShortcutCard(
+          icon: Icon(Icons.music_note),
+          text: "Currently playing...",
+          onTap: () {
+            Navigator.push(context,
+                MaterialPageRoute(builder: (context) => SongPage(song: song)));
+          },
+          color: Colors.grey);
+    }
   }
 }
