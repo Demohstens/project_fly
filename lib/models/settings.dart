@@ -4,6 +4,9 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:project_fly/components/favorite_cards.dart';
+import 'package:project_fly/main.dart';
+import 'package:project_fly/models/database.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Settings extends ChangeNotifier {
@@ -15,20 +18,17 @@ class Settings extends ChangeNotifier {
       _isDarkMode = _settings.getBool("isDarkMode") ?? false;
       var _musicDirStr = _settings.getString("musicDirectory");
       _musicDirectory = _musicDirStr != null ? Directory(_musicDirStr) : null;
-      _favoriteCards = [
-        FavoriteCard(),
-        FavoriteCard(),
-        FavoriteCard(),
-      ];
+      // _favoriteCard
       notifyListeners();
     });
   }
 
   bool _isDarkMode = false;
   List<Widget> _favoriteCards = [
-    FavoriteCard(),
-    FavoriteCard(),
-    FavoriteCard(),
+    FavoriteCard(typeOfCard: FavoriteCards.currentSong),
+    FavoriteCard(typeOfCard: FavoriteCards.artists),
+    FavoriteCard(typeOfCard: FavoriteCards.playlists),
+    FavoriteCard(typeOfCard: FavoriteCards.settings),
   ];
   bool get isDarkMode => _isDarkMode;
   set isDarkMode(bool value) {
@@ -65,18 +65,4 @@ Future<Directory?> selectMusicFolder() async {
 
   dirPath != null ? dir = Directory(dirPath).absolute : dir = null;
   return dir;
-}
-
-class FavoriteCard extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    // TODO: implement build
-    return Expanded(
-        child: Card(
-            child: Container(
-                color: Colors.redAccent,
-                constraints: BoxConstraints(minHeight: 50),
-                child: Row(
-                    children: [Icon(Icons.favorite), Text("Favorite Song")]))));
-  }
 }

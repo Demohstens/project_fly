@@ -7,19 +7,21 @@ import 'package:path/path.dart' as path;
 
 class Song {
   final Source source;
+  final String path;
   final String title;
   final String? artist;
   final String? album = null;
   final String? genre;
   final DateTime? releaseDate;
   final Duration duration;
-  final Image albumArt;
+  final Image? albumArt;
   final String? lyrics;
   const Song(
       {required this.title,
       required this.source,
       required this.duration,
-      required this.albumArt,
+      this.albumArt,
+      required this.path,
       this.lyrics,
       this.artist,
       this.genre,
@@ -58,6 +60,7 @@ Future<Song> songFromFile(File f) async {
   var lyrics = 'Lyrics not implemented yet :c'; // TODO Implement lyrics
   var source = DeviceFileSource(f.path);
   return Song(
+    path: f.path,
     title: title,
     artist: artist,
     genre: genre,
@@ -72,6 +75,7 @@ Future<Song> songFromFile(File f) async {
 class SampleSong extends Song {
   SampleSong()
       : super(
+          path: "assets/songs/positive_thinking.wav",
           title: 'Positive Thinking',
           artist: 'Vlad Gluschenko',
           genre: 'Pop',

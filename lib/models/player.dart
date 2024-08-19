@@ -4,7 +4,10 @@ import 'package:audio_service/audio_service.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:project_fly/main.dart';
+import 'package:project_fly/models/database.dart';
 import 'package:project_fly/models/song.dart';
+import 'package:rxdart/src/subjects/behavior_subject.dart';
 
 class FlyAudioHandler extends BaseAudioHandler
     with QueueHandler, SeekHandler, ChangeNotifier {
@@ -15,7 +18,7 @@ class FlyAudioHandler extends BaseAudioHandler
   Song? _currentSong;
   bool _isPlaying = false;
   Duration? _currentDuration;
-
+  @override
   FlyAudioHandler() {
     _player.setVolume(volume);
 
@@ -72,7 +75,6 @@ class FlyAudioHandler extends BaseAudioHandler
     play();
   }
 
-  @override
   Future<void> play() async {
     if (_currentSource != null) {
       await _player.play(_currentSource!);
@@ -120,6 +122,25 @@ class FlyAudioHandler extends BaseAudioHandler
 
   void addSong(Song song) {
     _songs.add(song);
+    if (user != null) {
+      if (user!.id.isNotEmpty) {
+        if (user!.songs.contains(song.path)) {
+          print("Song already in user's library");
+        } else {
+          user!.songs.add({
+            'path': song.path,
+            'title': song.title,
+            'artist': song.artist,
+            'album': song.album,
+            'duration': song.duration.toString(),
+          });
+          db.collection("users").doc(user!.id).update({'songs': user!.songs});
+        }
+      } else {
+        print("User id is empty");
+      }
+    }
+
     print("Added song ${song.title}");
     notifyListeners();
   }
