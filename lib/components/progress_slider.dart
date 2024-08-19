@@ -2,9 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:project_fly/models/player.dart';
 import 'package:provider/provider.dart';
 
-class ProgressSlider extends StatelessWidget {
+class ProgressSlider extends StatefulWidget {
   const ProgressSlider({Key? key}) : super(key: key);
 
+  _ProgressSliderState createState() => _ProgressSliderState();
+}
+
+class _ProgressSliderState extends State<ProgressSlider> {
+  bool isSeeking = false;
+  double seekValue = 0;
   @override
   Widget build(BuildContext context) {
     var currentSong = context.watch<FlyAudioHandler>().currentSong;
@@ -25,17 +31,31 @@ class ProgressSlider extends StatelessWidget {
         trackShape: RoundedRectSliderTrackShape(), // Rounded track
       ),
       child: Slider(
-        min: 0,
-        max: maxDuration > 0 ? maxDuration : 1, // Prevents max from being 0
-        value: currentDuration.clamp(0, maxDuration),
-        onChanged: maxDuration > 0
-            ? (v) {
-                context
-                    .read<FlyAudioHandler>()
-                    .seekTo(Duration(milliseconds: v.toInt()));
-              }
-            : null, // Disables the slider if maxDuration is 0
-      ),
+          min: 0,
+          max: maxDuration > 0 ? maxDuration : 1, // Prevents max from being 0
+          value: isSeeking ? seekValue : currentDuration.clamp(0, maxDuration),
+          onChangeStart: (value) {
+            setState(() {
+              isSeeking = true;
+            });
+          },
+          onChanged: maxDuration > 0
+              ? (v) {
+                  if (isSeeking) {
+                    setState(() {
+                      seekValue = v;
+                    });
+                  }
+                }
+              : null, // Disables the slider if maxDuration is 0
+          onChangeEnd: (value) {
+            setState(() {
+              isSeeking = false;
+              context
+                  .read<FlyAudioHandler>()
+                  .seekTo(Duration(milliseconds: seekValue.toInt()));
+            });
+          }),
     );
   }
 }
