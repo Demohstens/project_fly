@@ -5,8 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:project_fly/components/favorite_cards.dart';
-import 'package:project_fly/main.dart';
-import 'package:project_fly/models/database.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Settings extends ChangeNotifier {

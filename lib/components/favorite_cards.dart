@@ -3,7 +3,6 @@ import 'package:project_fly/models/player.dart';
 import 'package:project_fly/pages/settings_page.dart';
 import 'package:project_fly/pages/song_page.dart';
 import 'package:provider/provider.dart';
-import 'package:sizer/sizer.dart';
 
 enum FavoriteCards {
   favoriteSongs,

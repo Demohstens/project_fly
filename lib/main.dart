@@ -84,13 +84,9 @@ Future<User?> getUser() async {
       }
     } else {
       String id2 = await createDatabaseUser(db);
-      if (id2 == null) {
-        print("$id2");
-        return null;
-      } else {
-        value.setString("user_id", id2);
-        return getUserByID(db, id2);
-      }
+
+      value.setString("user_id", id2);
+      return getUserByID(db, id2);
     }
   });
 }

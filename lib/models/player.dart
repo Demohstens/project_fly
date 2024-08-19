@@ -5,9 +5,7 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:project_fly/main.dart';
-import 'package:project_fly/models/database.dart';
 import 'package:project_fly/models/song.dart';
-import 'package:rxdart/src/subjects/behavior_subject.dart';
 
 class FlyAudioHandler extends BaseAudioHandler
     with QueueHandler, SeekHandler, ChangeNotifier {
