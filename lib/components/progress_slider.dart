@@ -15,7 +15,7 @@ class _ProgressSliderState extends State<ProgressSlider> {
   Widget build(BuildContext context) {
     var currentSong = context.watch<FlyAudioHandler>().currentSong;
 
-    double maxDuration = currentSong.duration?.inMilliseconds.toDouble() ?? 0;
+    double maxDuration = currentSong?.duration.inMilliseconds.toDouble() ?? 0;
     double currentDuration = context
             .watch<FlyAudioHandler>()
             .currentDuration

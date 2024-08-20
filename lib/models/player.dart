@@ -5,7 +5,9 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:project_fly/main.dart';
+import 'package:project_fly/models/queue.dart';
 import 'package:project_fly/models/song.dart';
+import 'package:rxdart/src/subjects/behavior_subject.dart';
 
 class FlyAudioHandler extends BaseAudioHandler
     with QueueHandler, SeekHandler, ChangeNotifier {
@@ -13,9 +15,9 @@ class FlyAudioHandler extends BaseAudioHandler
   Source? _currentSource;
   double _volume = 0.2;
   double playbackSpeed = 1.0;
-  Song? _currentSong;
+  RenderedSong? _currentSong;
   bool _isPlaying = false;
-  Duration? _currentDuration;
+  Duration _currentDuration = Duration.zero;
   @override
   FlyAudioHandler() {
     _player.setVolume(volume);
@@ -27,7 +29,7 @@ class FlyAudioHandler extends BaseAudioHandler
 
   // * Getters * //
   get volume => _volume;
-  get currentSong => _currentSong;
+  RenderedSong? get currentSong => _currentSong;
   get isPlaying => _isPlaying;
   Duration? get currentDuration => _currentDuration;
 
@@ -49,8 +51,19 @@ class FlyAudioHandler extends BaseAudioHandler
 
   @override
   Future<void> skipToNext() async {
+    super.skipToNext();
     //TODO: Implement skipToNext
-    return;
+  }
+
+  @override
+  Future<void> addQueueItem(MediaItem mediaItem) {
+    // TODO: implement addQueueItem
+    return super.addQueueItem(mediaItem);
+  }
+
+  @override
+  Future<void> skipToPrevious() async {
+    super.skipToPrevious();
   }
 
   /// Defines behavior of the player when the playback is stopped.
@@ -67,9 +80,9 @@ class FlyAudioHandler extends BaseAudioHandler
     }
   }
 
-  void playSong(Song song) {
-    _currentSong = song;
-    setSource(song.source);
+  void playSong(Song song) async {
+    _currentSong = await song.render();
+    setSource(_currentSong!.source);
     play();
   }
 
@@ -104,7 +117,7 @@ class FlyAudioHandler extends BaseAudioHandler
   void setSource(Source source) {
     _currentSource = source;
     // play();
-    notifyListeners();
+    // notifyListeners();
   }
 
   /// Change the volume of the player from 0-1.
@@ -118,65 +131,44 @@ class FlyAudioHandler extends BaseAudioHandler
 
   List<Song> get songs => _songs;
 
-  void addSong(Song song) {
-    _songs.add(song);
-    if (user != null) {
-      if (user!.id.isNotEmpty) {
-        if (user!.songs.contains(song.path)) {
-          print("Song already in user's library");
-        } else {
-          user!.songs.add({
-            'path': song.path,
-            'title': song.title,
-            'artist': song.artist,
-            'album': song.album,
-            'duration': song.duration.toString(),
-          });
-          db.collection("users").doc(user!.id).update({'songs': user!.songs});
-        }
-      } else {
-        print("User id is empty");
-      }
-    }
-
-    print("Added song ${song.title}");
-    notifyListeners();
-  }
-
-  void updateSongList(Directory? dir) {
-    print("Updating song list");
-    _songs = [];
-    if (dir == null) {
-      print("Cant update song list, dir is null");
-      return;
-    }
-    depthSearchFolder(dir);
-    notifyListeners();
-  }
-
-  Future<void> depthSearchFolder(Directory dir) async {
-    print("Searching folder: ${dir.path}");
-    await for (FileSystemEntity entity
-        in dir.list(recursive: true, followLinks: false)) {
-      print(entity);
-      if (entity is File) {
-        String ext = entity.path.split('.').last;
-        if (ext == 'mp3' || ext == 'm4a' || ext == 'flac' || ext == 'mp4') {
-          var v = await songFromFile(entity);
-          addSong(v);
-        } else {
-          print("Skipping file ${entity.path}. Format not supported");
-        }
-      } else if (entity is Directory) {
-        // Optional: Uncomment if you want to recurse into directories as they are found
-        // await depthSearchFolder(entity);
-      }
-    }
-    notifyListeners();
-  }
-
   void removeSong(Song song) {
     _songs.remove(song);
     notifyListeners();
+  }
+
+  @override
+  // TODO: implement playbackState
+  BehaviorSubject<PlaybackState> get playbackState {
+    super.playbackState.add(PlaybackState(
+          // Which buttons should appear in the notification now
+          controls: [
+            MediaControl.skipToPrevious,
+            MediaControl.pause,
+            isPlaying ? MediaControl.pause : MediaControl.play,
+            MediaControl.skipToNext,
+          ],
+          // Which other actions should be enabled in the notification
+          systemActions: const {
+            MediaAction.seek,
+          },
+          // Which controls to show in Android's compact view.
+          androidCompactActionIndices: const [0, 1, 3],
+          // Whether audio is ready, buffering, ...
+          processingState: AudioProcessingState.ready,
+          // Whether audio is playing
+          playing: isPlaying,
+          // The current position as of this update. You should not broadcast
+          // position changes continuously because listeners will be able to
+          // project the current position after any elapsed time based on the
+          // current speed and whether audio is playing and ready. Instead, only
+          // broadcast position updates when they are different from expected (e.g.
+          // buffering, or seeking).
+          updatePosition: Duration.zero,
+          // The current speed
+          speed: playbackSpeed,
+          // The current queue position
+          queueIndex: 0,
+        ));
+    return super.playbackState;
   }
 }

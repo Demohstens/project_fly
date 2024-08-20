@@ -9,7 +9,7 @@ import 'package:provider/provider.dart';
 import 'package:aura_box/aura_box.dart';
 
 class SongPage extends StatefulWidget {
-  final Song song;
+  final RenderedSong song;
   SongPage({required this.song});
 
   @override
@@ -146,9 +146,6 @@ class ButtonRow extends StatelessWidget {
             // Play button
             IconButton(
                 onPressed: () {
-                  context
-                      .read<FlyAudioHandler>()
-                      .setSource(song.source); // TODO: Fix this
                   audioHandler.togglePlaying();
                 },
                 icon: context.watch<FlyAudioHandler>().isPlaying

@@ -225,7 +225,7 @@ class CurrentSongCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Song? song = context.watch<FlyAudioHandler>().currentSong;
+    RenderedSong? song = context.watch<FlyAudioHandler>().currentSong;
     if (song == null) {
       return ShortcutCard(
           icon: Icon(Icons.music_note),

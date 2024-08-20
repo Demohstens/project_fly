@@ -14,8 +14,8 @@ class CurrentlyPlayingIsland extends StatelessWidget {
             ? Icon(Icons.pause)
             : Icon(Icons.play_arrow);
 
-    Song? currentSong =
-        context.select<FlyAudioHandler, Song?>((value) => value.currentSong);
+    RenderedSong? currentSong = context
+        .select<FlyAudioHandler, RenderedSong?>((value) => value.currentSong);
 
     if (currentSong == null) {
       return Container();
