@@ -1,16 +1,20 @@
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:audio_service/audio_service.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:project_fly/main.dart';
+import 'package:project_fly/models/library.dart';
 import 'package:project_fly/models/queue.dart';
+
 import 'package:project_fly/models/song.dart';
+import 'package:provider/provider.dart';
 import 'package:rxdart/src/subjects/behavior_subject.dart';
 
 class FlyAudioHandler extends BaseAudioHandler
     with QueueHandler, SeekHandler, ChangeNotifier {
+  final MusicLibrary musicLibrary;
   final _player = AudioPlayer();
   Source? _currentSource;
   double _volume = 0.2;
@@ -19,7 +23,7 @@ class FlyAudioHandler extends BaseAudioHandler
   bool _isPlaying = false;
   Duration _currentDuration = Duration.zero;
   @override
-  FlyAudioHandler() {
+  FlyAudioHandler({required this.musicLibrary}) {
     _player.setVolume(volume);
 
     _player.onPositionChanged.listen((state) {
@@ -51,14 +55,21 @@ class FlyAudioHandler extends BaseAudioHandler
 
   @override
   Future<void> skipToNext() async {
+    log('Skipping to next $queue');
+
     super.skipToNext();
     //TODO: Implement skipToNext
   }
 
   @override
   Future<void> addQueueItem(MediaItem mediaItem) {
-    // TODO: implement addQueueItem
+    log('Adding item to queue', name: 'FlyAudioHandler');
     return super.addQueueItem(mediaItem);
+  }
+
+  @override
+  Future<void> addQueueItems(List<MediaItem> items) async {
+    super.addQueueItems(items);
   }
 
   @override
@@ -80,36 +91,82 @@ class FlyAudioHandler extends BaseAudioHandler
     }
   }
 
+  Future<void> onPlayFromMediaId(String mediaId,
+      [Map<String, dynamic>? extras]) async {
+    // 1. Find the song in your song library
+    Song? song = musicLibrary.findSongById(
+        mediaId); // Assuming you have a musicLibrary instance available
+
+    RenderedSong renderedSong = await song.render();
+    _player.setSource(
+        renderedSong.source); // Assuming your player has a setSource method
+
+    // 4. Start playback
+    await _player
+        .play(renderedSong.source); // or _player.play() if not already playing
+
+    _isPlaying = true;
+    _currentSong = renderedSong;
+    playbackState.add(playbackState.value.copyWith(
+      processingState: AudioProcessingState.ready,
+      playing: true,
+    )); // Assuming playbackState is a BehaviorSubject
+    // Update the queue and queueIndex
+    List<MediaItem> queueItems =
+        musicLibrary.songs.map((e) => e.toMediaItem()).toList();
+    await addQueueItems(queueItems);
+    playbackState.add(playbackState.value.copyWith(
+      queueIndex: 0, // Set the initial queueIndex to 0
+    ));
+
+    notifyListeners();
+  }
+
+  @override
+  Future<void> playFromMediaId(String mediaId, [Map<String, dynamic>? extras]) {
+    // TODO: implement playFromMediaId
+    return onPlayFromMediaId(mediaId, extras);
+  }
+
   void playSong(Song song) async {
-    _currentSong = await song.render();
-    setSource(_currentSong!.source);
-    play();
+    MediaItem mItem = await song.toMediaItem();
+    return playMediaItem(mItem);
+  }
+
+  Future<void> playMediaItem(MediaItem mediaItem) async {
+    addQueueItem(mediaItem);
+    await playFromMediaId(mediaItem.id);
   }
 
   Future<void> play() async {
+    _currentDuration = Duration.zero;
     if (_currentSource != null) {
       await _player.play(_currentSource!);
       _isPlaying = true;
     } else {
       await _player.play(AssetSource('error.mp3'));
     }
+    List<MediaItem> queueItems =
+        musicLibrary.songs.map((e) => e.toMediaItem()).toList();
+
+    await addQueueItems(queueItems);
     notifyListeners();
   }
 
-  Future<void> pause() {
+  Future<void> pause() async {
     _isPlaying = false;
+    await _player.pause();
     notifyListeners();
-
-    return _player.pause();
   }
 
-  Future<void> stop() {
+  Future<void> stop() async {
     _isPlaying = false;
     _currentSong = null;
+    _player.stop();
+
     notifyListeners();
 
     // _currentSource = null;
-    return _player.stop();
   }
 
   Future<void> seekTo(Duration position) => _player.seek(position);
@@ -124,15 +181,6 @@ class FlyAudioHandler extends BaseAudioHandler
   void changeVolume(double volume) async {
     await _player.setVolume(volume);
     _volume = volume;
-    notifyListeners();
-  }
-
-  List<Song> _songs = [];
-
-  List<Song> get songs => _songs;
-
-  void removeSong(Song song) {
-    _songs.remove(song);
     notifyListeners();
   }
 

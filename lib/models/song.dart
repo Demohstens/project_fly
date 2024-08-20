@@ -9,7 +9,7 @@ import 'package:uuid/uuid.dart';
 
 class Song {
   // final Source source;
-  final Uuid key = const Uuid();
+  final String id = const Uuid().v4();
   final String path;
   final String title;
   final String? artist;
@@ -19,7 +19,7 @@ class Song {
   final Duration duration;
   // final Image? albumArt;
   // final String? lyrics;
-  const Song(
+  Song(
       {required this.title,
       // required this.source,
       required this.duration,
@@ -30,6 +30,16 @@ class Song {
       this.artist,
       this.genre,
       this.releaseDate});
+  MediaItem toMediaItem() {
+    return MediaItem(
+        id: id,
+        album: album,
+        title: title,
+        artist: artist,
+        genre: genre,
+        duration: duration,
+        playable: true);
+  }
 
   Future<RenderedSong> render() async {
     var tag = await AudioTags.read(path);
@@ -118,7 +128,7 @@ class RenderedSong extends Song {
 
   MediaItem toMediaItem() {
     return MediaItem(
-      id: key.toString(),
+      id: id,
       album: album,
       title: title,
       artist: artist,

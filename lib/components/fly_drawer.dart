@@ -9,18 +9,18 @@ class FlyDrawer extends StatelessWidget {
       child: ListView(
         padding: EdgeInsets.zero,
         children: <Widget>[
-          DrawerHeader(
-            child: Text('Project Fly'),
+          const DrawerHeader(
             decoration: BoxDecoration(
               color: Colors.blue,
             ),
+            child: Text('Project Fly'),
           ),
           ListTile(
             title: const Text('Settings'),
             onTap: () {
               Navigator.pop(context);
               Navigator.push(context, MaterialPageRoute(builder: (context) {
-                return SettingsPage();
+                return const SettingsPage();
               }));
             },
           ),

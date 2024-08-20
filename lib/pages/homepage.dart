@@ -3,7 +3,6 @@ import 'package:project_fly/components/currently_playing_island.dart';
 import 'package:project_fly/components/fly_drawer.dart';
 import 'package:project_fly/components/home_subpage.dart';
 import 'package:project_fly/models/library.dart';
-import 'package:project_fly/models/player.dart';
 import 'package:project_fly/models/settings.dart';
 import 'package:provider/provider.dart';
 

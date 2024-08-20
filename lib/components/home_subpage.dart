@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:project_fly/components/song_list_item.dart';
 import 'package:project_fly/models/library.dart';
-import 'package:project_fly/models/player.dart';
 import 'package:project_fly/models/settings.dart';
 import 'package:project_fly/models/song.dart';
 import 'package:provider/provider.dart';

@@ -7,6 +7,10 @@ class MusicLibrary extends ChangeNotifier {
   List<Song> _songs = [];
   List<Song> get songs => _songs;
 
+  Song findSongById(String id) {
+    return _songs.firstWhere((element) => element.id == id);
+  }
+
   void updateSongList(Directory? dir) {
     print("Updating song list");
     _songs = [];
