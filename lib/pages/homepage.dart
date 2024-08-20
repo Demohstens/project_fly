@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:project_fly/components/currently_playing_island.dart';
 import 'package:project_fly/components/fly_drawer.dart';
-import 'package:project_fly/components/home_subpage.dart';
 import 'package:project_fly/providers/library.dart';
 import 'package:project_fly/providers/page_provider.dart';
 import 'package:project_fly/providers/settings.dart';
@@ -36,8 +35,6 @@ class FlyNavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    int currentPageIndex = context.watch<PageProvider>().currentPageIndex;
-
     Widget? homeScaffoldBody = context.watch<PageProvider>().currentPage;
 
     return Scaffold(

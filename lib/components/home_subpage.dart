@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:project_fly/components/song_list_item.dart';
 import 'package:project_fly/providers/library.dart';
 import 'package:project_fly/providers/settings.dart';
-import 'package:project_fly/models/song.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
 
