@@ -1,4 +1,8 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
+import 'package:project_fly/pages/subpages/queue.dart';
+import 'package:project_fly/providers/page_provider.dart';
 import 'package:project_fly/providers/player.dart';
 import 'package:project_fly/models/song.dart';
 import 'package:project_fly/pages/settings_page.dart';
@@ -173,7 +177,10 @@ class QueueCard extends StatelessWidget {
     return ShortcutCard(
         icon: Icon(Icons.queue_music),
         text: "Queue",
-        onTap: () {},
+        onTap: () {
+          log("Queue card pressed");
+          context.read<PageProvider>().setToCustomPage(QueuePage());
+        },
         color: const Color.fromARGB(255, 178, 19, 19));
   }
 }

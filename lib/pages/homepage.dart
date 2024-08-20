@@ -37,19 +37,8 @@ class FlyNavBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     int currentPageIndex = context.watch<PageProvider>().currentPageIndex;
-    Widget? customComponent = context.watch<PageProvider>().customComponent;
-    List<Widget> pages = <Widget>[
-      Container(
-        child: HomeSubPage(),
-      ),
-      Container(
-        child: const Text('Search'),
-      ),
-      Container(
-        child: const Text('Library'),
-      ),
-      Container(child: customComponent)
-    ];
+
+    Widget? homeScaffoldBody = context.watch<PageProvider>().currentPage;
 
     return Scaffold(
       drawer: FlyDrawer(),
@@ -69,7 +58,7 @@ class FlyNavBar extends StatelessWidget {
       bottomNavigationBar: NavigationBar(
         selectedIndex: context.watch<PageProvider>().currentPageIndex,
         onDestinationSelected: (int index) {
-          context.read<PageProvider>().setCurrentPageIndex(index);
+          context.read<PageProvider>().setToOriginalIndex(index);
         },
         destinations: const <Widget>[
           NavigationDestination(
@@ -86,7 +75,7 @@ class FlyNavBar extends StatelessWidget {
           ),
         ],
       ),
-      body: pages[currentPageIndex],
+      body: homeScaffoldBody,
     );
   }
 }

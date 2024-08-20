@@ -9,11 +9,6 @@ class QueuePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListView(
-      children: [
-        for (MediaItem song in context.watch<FlyAudioHandler>().queue.value)
-          SongListitem(song: song)
-      ],
-    );
+    return Text("Queue");
   }
 }

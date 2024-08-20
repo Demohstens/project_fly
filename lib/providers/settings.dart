@@ -24,7 +24,7 @@ class Settings extends ChangeNotifier {
   bool _isDarkMode = false;
   List<Widget> _favoriteCards = [
     FavoriteCard(typeOfCard: FavoriteCards.currentSong),
-    FavoriteCard(typeOfCard: FavoriteCards.artists),
+    FavoriteCard(typeOfCard: FavoriteCards.queue),
     FavoriteCard(typeOfCard: FavoriteCards.playlists),
     FavoriteCard(typeOfCard: FavoriteCards.settings),
   ];
