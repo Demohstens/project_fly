@@ -151,13 +151,13 @@ class ButtonRow extends StatelessWidget {
                 onPressed: () {
                   audioHandler.togglePlaying();
                 },
-                icon: context.watch<FlyAudioHandler>().isPlaying
-                    ? Icon(Icons.pause)
-                    : Icon(Icons.play_arrow)),
+                icon:
+                    context.watch<FlyAudioHandler>().playbackState.value.playing
+                        ? Icon(Icons.pause)
+                        : Icon(Icons.play_arrow)),
             IconButton(
-                onPressed: () => context
-                    .read<FlyAudioHandler>()
-                    .setSource(AssetSource("error.mp3")),
+                onPressed: () =>
+                    context.read<FlyAudioHandler>().playErrorSound(),
                 icon: Icon(Icons.skip_next)),
             const Icon(Icons.playlist_add),
           ]),

@@ -17,7 +17,8 @@ class _ProgressSliderState extends State<ProgressSlider> {
 
     double maxDuration = currentSong?.duration.inMilliseconds.toDouble() ?? 0;
     double currentDuration = context
-            .watch<FlyAudioHandler>()
+            .watch<
+                FlyAudioHandler>() // TODO: update using listener from audio_service
             .currentDuration
             ?.inMilliseconds
             .toDouble() ??

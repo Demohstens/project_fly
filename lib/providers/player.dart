@@ -16,7 +16,6 @@ class FlyAudioHandler extends BaseAudioHandler
     with QueueHandler, SeekHandler, ChangeNotifier {
   final MusicLibrary musicLibrary;
   final _player = AudioPlayer();
-  Source? _currentSource;
   double _volume = 0.2;
   double playbackSpeed = 1.0;
   RenderedSong? _currentSong;
@@ -84,7 +83,7 @@ class FlyAudioHandler extends BaseAudioHandler
   }
 
   void togglePlaying() {
-    if (isPlaying) {
+    if (playbackState.value.playing) {
       pause();
     } else {
       play();
@@ -137,10 +136,14 @@ class FlyAudioHandler extends BaseAudioHandler
     await playFromMediaId(mediaItem.id);
   }
 
+  void playErrorSound() {
+    _player.play(AssetSource('error.mp3'));
+  }
+
   Future<void> play() async {
     _currentDuration = Duration.zero;
-    if (_currentSource != null) {
-      await _player.play(_currentSource!);
+    if (currentSong != null) {
+      await _player.play(DeviceFileSource(currentSong!.path));
       _isPlaying = true;
     } else {
       await _player.play(AssetSource('error.mp3'));
@@ -163,17 +166,9 @@ class FlyAudioHandler extends BaseAudioHandler
     _player.stop();
 
     notifyListeners();
-
-    // _currentSource = null;
   }
 
   Future<void> seekTo(Duration position) => _player.seek(position);
-
-  void setSource(Source source) {
-    _currentSource = source;
-    // play();
-    // notifyListeners();
-  }
 
   /// Change the volume of the player from 0-1.
   void changeVolume(double volume) async {

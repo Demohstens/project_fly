@@ -8,7 +8,6 @@ import 'package:flutter/material.dart';
 import 'package:path/path.dart' as path;
 import 'package:uuid/uuid.dart';
 
-@Deprecated("Use RenderedSong instead")
 class Song {
   // final Source source;
   final String id = const Uuid().v4();
@@ -21,7 +20,7 @@ class Song {
   final Duration duration;
   // final Image? albumArt;
   // final String? lyrics;
-
+  @Deprecated("Use RenderedSong instead")
   Song(
       {required this.title,
       // required this.source,
@@ -84,7 +83,7 @@ Future<MediaItem?> songFromFile(File f) async {
       "unable to load name";
   var artist = metadata.trackArtist;
   var genre = metadata.genre;
-  var releaseDate;
+  DateTime? releaseDate;
   try {
     releaseDate = metadata.year == null ? null : DateTime(metadata.year!);
   } catch (e) {
