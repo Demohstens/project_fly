@@ -1,19 +1,21 @@
 import 'dart:io';
 
+import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
 import 'package:project_fly/models/song.dart';
 
 class MusicLibrary extends ChangeNotifier {
-  List<Song> _songs = [];
-  List<Song> get songs => _songs;
+  List<MediaItem> _mediaItems = [];
+  List<MediaItem> get songs => _mediaItems;
+  Map<String, String> _songPaths = {};
 
-  Song findSongById(String id) {
-    return _songs.firstWhere((element) => element.id == id);
+  MediaItem findSongById(String id) {
+    return _mediaItems.firstWhere((element) => element.id == id);
   }
 
   void updateSongList(Directory? dir) {
     print("Updating song list");
-    _songs = [];
+    _mediaItems = [];
     if (dir == null) {
       print("Cant update song list, dir is null");
       return;
@@ -31,7 +33,10 @@ class MusicLibrary extends ChangeNotifier {
         String ext = entity.path.split('.').last;
         if (ext == 'mp3' || ext == 'm4a' || ext == 'flac' || ext == 'mp4') {
           var v = await songFromFile(entity);
-          addSong(v);
+          MediaItem? song = await songFromFile(entity);
+          if (song != null) {
+            addSong(song!);
+          }
         } else {
           print("Skipping file ${entity.path}. Format not supported");
         }
@@ -43,9 +48,8 @@ class MusicLibrary extends ChangeNotifier {
     notifyListeners();
   }
 
-  void addSong(Song song) {
-    _songs.add(song);
-
+  void addSong(MediaItem song) {
+    _mediaItems.add(song);
     print("Added song ${song.title}");
     notifyListeners();
   }

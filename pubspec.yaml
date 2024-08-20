@@ -73,8 +73,5 @@ flutter:
   # the material Icons class.
   uses-material-design: true
   assets:
-    - assets/images/positive_thinking.jpg
-    - assets/positive_thinking.wav
     - assets/error.mp3
     - assets/images/placeholder_album_art.png
-    - assets/Bubblegum KK short.mp3

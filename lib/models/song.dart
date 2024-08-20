@@ -3,10 +3,12 @@ import 'dart:io';
 import 'package:audio_service/audio_service.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:audiotags/audiotags.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:path/path.dart' as path;
 import 'package:uuid/uuid.dart';
 
+@Deprecated("Use RenderedSong instead")
 class Song {
   // final Source source;
   final String id = const Uuid().v4();
@@ -19,6 +21,7 @@ class Song {
   final Duration duration;
   // final Image? albumArt;
   // final String? lyrics;
+
   Song(
       {required this.title,
       // required this.source,
@@ -38,7 +41,8 @@ class Song {
         artist: artist,
         genre: genre,
         duration: duration,
-        playable: true);
+        playable: true,
+        extras: {'path': path});
   }
 
   Future<RenderedSong> render() async {
@@ -61,18 +65,19 @@ class Song {
   }
 }
 
-Future<Song> songFromFile(File f) async {
+Future<MediaItem?> songFromFile(File f) async {
   Tag? metadata;
   try {
     metadata = await AudioTags.read(f.path);
   } catch (e) {
     print("CANNOT LOAD METADATA $e");
-    return SampleSong();
+    return null;
   }
 
   if (metadata == null) {
-    return SampleSong();
+    return null;
   }
+
   var title = (metadata.title == null || metadata.title == ""
           ? path.basenameWithoutExtension(f.path)
           : metadata.title) ??
@@ -86,21 +91,23 @@ Future<Song> songFromFile(File f) async {
     releaseDate = null;
   }
   var album = metadata.album;
-  Duration duration = Duration(milliseconds: metadata.duration! * 1000);
+  Duration duration =
+      Duration(milliseconds: metadata.duration! * 1000); // TODO test
   // print(duration);
   // var albumArt = metadata.pictures.isEmpty
   //     ? Image.asset('assets/images/placeholder_album_art.png')
   //     : Image.memory(metadata.pictures.first.bytes);
   // var lyrics = 'Lyrics not implemented yet :c'; // TODO Implement lyrics
   // var source = DeviceFileSource(f.path);
-  return Song(
-    path: f.path,
+  var releaseDateYear = releaseDate == null ? null : releaseDate.year;
+  return MediaItem(
     title: title,
     artist: artist,
     genre: genre,
-    releaseDate: releaseDate,
     duration: duration,
     album: album,
+    id: const Uuid().v4(),
+    extras: {'path': f.path, "year": releaseDateYear},
     // albumArt: albumArt,
     // lyrics: lyrics,
     // source: source,
@@ -108,14 +115,11 @@ Future<Song> songFromFile(File f) async {
 }
 
 class RenderedSong extends Song {
-  final Image albumArt;
-  final String lyrics;
+  final Image? albumArt;
+  final String? lyrics;
   final Source source;
   RenderedSong(
-      {required Song song,
-      required this.albumArt,
-      required this.lyrics,
-      required this.source})
+      {required Song song, this.albumArt, this.lyrics, required this.source})
       : super(
           path: song.path,
           title: song.title,
@@ -125,6 +129,19 @@ class RenderedSong extends Song {
           releaseDate: song.releaseDate,
           duration: song.duration,
         );
+
+  factory RenderedSong.fromMediaItem(MediaItem item) {
+    String path = item.extras!['path'] as String;
+    return RenderedSong(
+        source: DeviceFileSource(path),
+        song: Song(
+            path: path,
+            title: item.title,
+            artist: item.artist,
+            album: item.album,
+            genre: item.genre,
+            duration: item.duration!));
+  }
 
   MediaItem toMediaItem() {
     return MediaItem(
@@ -136,16 +153,4 @@ class RenderedSong extends Song {
       duration: duration,
     );
   }
-}
-
-class SampleSong extends Song {
-  SampleSong()
-      : super(
-          path: "assets/songs/positive_thinking.wav",
-          title: 'Positive Thinking',
-          artist: 'Vlad Gluschenko',
-          genre: 'Pop',
-          releaseDate: DateTime(2023, 11, 9),
-          duration: Duration(minutes: 3),
-        );
 }

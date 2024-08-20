@@ -5,7 +5,7 @@ import 'package:audio_service/audio_service.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:project_fly/models/library.dart';
+import 'package:project_fly/providers/library.dart';
 import 'package:project_fly/models/queue.dart';
 
 import 'package:project_fly/models/song.dart';
@@ -94,10 +94,10 @@ class FlyAudioHandler extends BaseAudioHandler
   Future<void> onPlayFromMediaId(String mediaId,
       [Map<String, dynamic>? extras]) async {
     // 1. Find the song in your song library
-    Song? song = musicLibrary.findSongById(
+    MediaItem? song = musicLibrary.findSongById(
         mediaId); // Assuming you have a musicLibrary instance available
 
-    RenderedSong renderedSong = await song.render();
+    RenderedSong renderedSong = await RenderedSong.fromMediaItem(song);
     _player.setSource(
         renderedSong.source); // Assuming your player has a setSource method
 
@@ -112,8 +112,7 @@ class FlyAudioHandler extends BaseAudioHandler
       playing: true,
     )); // Assuming playbackState is a BehaviorSubject
     // Update the queue and queueIndex
-    List<MediaItem> queueItems =
-        musicLibrary.songs.map((e) => e.toMediaItem()).toList();
+    List<MediaItem> queueItems = musicLibrary.songs;
     await addQueueItems(queueItems);
     playbackState.add(playbackState.value.copyWith(
       queueIndex: 0, // Set the initial queueIndex to 0
@@ -146,8 +145,7 @@ class FlyAudioHandler extends BaseAudioHandler
     } else {
       await _player.play(AssetSource('error.mp3'));
     }
-    List<MediaItem> queueItems =
-        musicLibrary.songs.map((e) => e.toMediaItem()).toList();
+    List<MediaItem> queueItems = musicLibrary.songs;
 
     await addQueueItems(queueItems);
     notifyListeners();

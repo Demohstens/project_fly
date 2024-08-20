@@ -1,7 +1,8 @@
+import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
 import 'package:project_fly/components/song_list_item.dart';
-import 'package:project_fly/models/library.dart';
-import 'package:project_fly/models/settings.dart';
+import 'package:project_fly/providers/library.dart';
+import 'package:project_fly/providers/settings.dart';
 import 'package:project_fly/models/song.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
@@ -16,12 +17,11 @@ class HomeSubPage extends StatelessWidget {
 }
 
 class ListOfSongs extends StatelessWidget {
-  final List<Song>? songs;
-  const ListOfSongs({this.songs, Key? super.key});
+  const ListOfSongs({Key? super.key});
 
   @override
   Widget build(BuildContext context) {
-    List<Song> songs = context.watch<MusicLibrary>().songs;
+    List<MediaItem> songs = context.watch<MusicLibrary>().songs;
     final favoriteCards = context.read<Settings>().favoriteCards;
 
     return RefreshIndicator(
@@ -100,8 +100,7 @@ class ListOfSongs extends StatelessWidget {
                 ),
               );
             } else {
-              Song song = songs[index];
-              return SongListitem(song: song);
+              return SongListitem(song: songs[index]);
             }
           },
         ),

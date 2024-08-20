@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:project_fly/main.dart';
-import 'package:project_fly/models/player.dart';
+import 'package:project_fly/providers/player.dart';
 import 'package:provider/provider.dart';
 
 class ProgressSlider extends StatefulWidget {

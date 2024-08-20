@@ -1,8 +1,11 @@
+import 'dart:io';
+
+import 'package:audio_service/audio_service.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:project_fly/components/progress_slider.dart';
 import 'package:project_fly/main.dart';
-import 'package:project_fly/models/player.dart';
+import 'package:project_fly/providers/player.dart';
 import 'package:project_fly/models/song.dart';
 import 'package:sizer/sizer.dart';
 import 'package:provider/provider.dart';

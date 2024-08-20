@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:project_fly/models/player.dart';
+import 'package:project_fly/providers/player.dart';
 import 'package:project_fly/models/song.dart';
 import 'package:project_fly/pages/settings_page.dart';
 import 'package:project_fly/pages/song_page.dart';

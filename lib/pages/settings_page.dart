@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:project_fly/models/settings.dart';
+import 'package:project_fly/providers/settings.dart';
 import 'package:provider/provider.dart';
 
 class SettingsPage extends StatelessWidget {

@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:project_fly/components/currently_playing_island.dart';
 import 'package:project_fly/components/fly_drawer.dart';
 import 'package:project_fly/components/home_subpage.dart';
-import 'package:project_fly/models/library.dart';
-import 'package:project_fly/models/settings.dart';
+import 'package:project_fly/providers/library.dart';
+import 'package:project_fly/providers/page_provider.dart';
+import 'package:project_fly/providers/settings.dart';
 import 'package:provider/provider.dart';
 
 class HomePage extends StatefulWidget {
@@ -30,18 +31,26 @@ class _HomePageState extends State<HomePage> {
 
 //  SongComponent(song: SampleSong())
 
-class FlyNavBar extends StatefulWidget {
-  const FlyNavBar({super.key});
-
-  @override
-  State<FlyNavBar> createState() => _FlyNavBarState();
-}
-
-class _FlyNavBarState extends State<FlyNavBar> {
-  int currentPageIndex = 0;
+class FlyNavBar extends StatelessWidget {
+  FlyNavBar({super.key});
 
   @override
   Widget build(BuildContext context) {
+    int currentPageIndex = context.watch<PageProvider>().currentPageIndex;
+    Widget? customComponent = context.watch<PageProvider>().customComponent;
+    List<Widget> pages = <Widget>[
+      Container(
+        child: HomeSubPage(),
+      ),
+      Container(
+        child: const Text('Search'),
+      ),
+      Container(
+        child: const Text('Library'),
+      ),
+      Container(child: customComponent)
+    ];
+
     return Scaffold(
       drawer: FlyDrawer(),
       persistentFooterAlignment: AlignmentDirectional.centerStart,
@@ -58,11 +67,9 @@ class _FlyNavBarState extends State<FlyNavBar> {
         ),
       ),
       bottomNavigationBar: NavigationBar(
-        selectedIndex: currentPageIndex,
+        selectedIndex: context.watch<PageProvider>().currentPageIndex,
         onDestinationSelected: (int index) {
-          setState(() {
-            currentPageIndex = index;
-          });
+          context.read<PageProvider>().setCurrentPageIndex(index);
         },
         destinations: const <Widget>[
           NavigationDestination(
@@ -83,15 +90,3 @@ class _FlyNavBarState extends State<FlyNavBar> {
     );
   }
 }
-
-List<Widget> pages = <Widget>[
-  Container(
-    child: HomeSubPage(),
-  ),
-  Container(
-    child: const Text('Search'),
-  ),
-  Container(
-    child: const Text('Library'),
-  ),
-];
