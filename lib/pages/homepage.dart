@@ -19,9 +19,9 @@ class _HomePageState extends State<HomePage> {
     @override
     void initState() {
       super.initState();
-      context
-          .read<MusicLibrary>()
-          .updateSongList(context.read<Settings>().musicDirectory);
+      // context
+      // .read<MusicLibrary>()
+      // .updateSongList(context.read<Settings>().musicDirectory);
     }
 
     return FlyNavBar();

@@ -1,3 +1,4 @@
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:project_fly/components/progress_slider.dart';
 import 'package:project_fly/providers/player.dart';
@@ -6,13 +7,30 @@ import 'package:project_fly/pages/song_page.dart';
 import 'package:sizer/sizer.dart';
 import 'package:provider/provider.dart';
 
-class CurrentlyPlayingIsland extends StatelessWidget {
+class CurrentlyPlayingIsland extends StatefulWidget {
+  @override
+  State<StatefulWidget> createState() => _CurrentlyPlayingIslandState();
+}
+
+class _CurrentlyPlayingIslandState extends State<CurrentlyPlayingIsland> {
+  bool isPlaying = false;
+  void isPlayingUpdate(PlayerState? playerState) {
+    setState(() {
+      isPlaying = playerState == PlayerState.playing;
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    context
+        .read<FlyAudioHandler>()
+        .registerPlayerStateListener(isPlayingUpdate);
+  }
+
   @override
   Widget build(BuildContext context) {
-    Icon playingIcon =
-        context.select<FlyAudioHandler, bool>((value) => value.isPlaying)
-            ? Icon(Icons.pause)
-            : Icon(Icons.play_arrow);
+    Icon playingIcon = isPlaying ? Icon(Icons.pause) : Icon(Icons.play_arrow);
 
     RenderedSong? currentSong = context
         .select<FlyAudioHandler, RenderedSong?>((value) => value.currentSong);

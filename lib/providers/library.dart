@@ -1,3 +1,4 @@
+import 'dart:developer' as dev;
 import 'dart:io';
 
 import 'package:audio_service/audio_service.dart';
@@ -7,9 +8,9 @@ import 'package:project_fly/models/song.dart';
 class MusicLibrary extends ChangeNotifier {
   List<MediaItem> _mediaItems = [];
   List<MediaItem> get songs => _mediaItems;
-  Map<String, String> _songPaths = {};
 
   MediaItem findSongById(String id) {
+    dev.log("Finding song by id: $id");
     return _mediaItems.firstWhere((element) => element.id == id);
   }
 
@@ -32,10 +33,9 @@ class MusicLibrary extends ChangeNotifier {
       if (entity is File) {
         String ext = entity.path.split('.').last;
         if (ext == 'mp3' || ext == 'm4a' || ext == 'flac' || ext == 'mp4') {
-          var v = await songFromFile(entity);
           MediaItem? song = await songFromFile(entity);
           if (song != null) {
-            addSong(song!);
+            addSong(song);
           }
         } else {
           print("Skipping file ${entity.path}. Format not supported");

@@ -1,7 +1,3 @@
-import 'dart:io';
-
-import 'package:audio_service/audio_service.dart';
-import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:project_fly/components/progress_slider.dart';
 import 'package:project_fly/main.dart';
@@ -81,7 +77,7 @@ class _SongPageState extends State<SongPage> {
 
 class ButtonRow extends StatelessWidget {
   ButtonRow({required this.song});
-  final Song song;
+  final RenderedSong song;
   final FocusNode childFocusNode = FocusNode();
   final MenuController menuController = MenuController();
   @override
