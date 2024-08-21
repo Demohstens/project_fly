@@ -1,9 +1,9 @@
 import 'dart:io';
 
 import 'package:audio_service/audio_service.dart';
-import 'package:audioplayers/audioplayers.dart';
 import 'package:audiotags/audiotags.dart';
 import 'package:flutter/material.dart';
+import 'package:just_audio/just_audio.dart';
 import 'package:path/path.dart' as path;
 import 'package:uuid/uuid.dart';
 
@@ -59,7 +59,7 @@ Future<MediaItem?> songFromFile(File f) async {
 class RenderedSong {
   final Image? albumArt;
   final String? lyrics;
-  final Source source;
+  final AudioSource source;
 
   final String id = const Uuid().v4();
   final String path;
@@ -87,7 +87,7 @@ class RenderedSong {
       path: path,
       title: item.title,
       duration: item.duration!, // TODO write proper handling of no duration
-      source: DeviceFileSource(path),
+      source: AudioSource.file(path),
       artist: item.artist,
       genre: item.genre,
       releaseDateYear: item.extras!['year'],

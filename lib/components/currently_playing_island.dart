@@ -1,5 +1,5 @@
-import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
+import 'package:just_audio/just_audio.dart';
 import 'package:project_fly/components/progress_slider.dart';
 import 'package:project_fly/providers/player.dart';
 import 'package:project_fly/models/song.dart';
@@ -7,30 +7,22 @@ import 'package:project_fly/pages/song_page.dart';
 import 'package:sizer/sizer.dart';
 import 'package:provider/provider.dart';
 
-class CurrentlyPlayingIsland extends StatefulWidget {
-  @override
-  State<StatefulWidget> createState() => _CurrentlyPlayingIslandState();
-}
-
-class _CurrentlyPlayingIslandState extends State<CurrentlyPlayingIsland> {
-  bool isPlaying = false;
-  void isPlayingUpdate(PlayerState? playerState) {
-    setState(() {
-      isPlaying = playerState == PlayerState.playing;
-    });
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    context
-        .read<FlyAudioHandler>()
-        .registerPlayerStateListener(isPlayingUpdate);
-  }
+class CurrentlyPlayingIsland extends StatelessWidget {
+  const CurrentlyPlayingIsland({super.key});
 
   @override
   Widget build(BuildContext context) {
-    Icon playingIcon = isPlaying ? Icon(Icons.pause) : Icon(Icons.play_arrow);
+    Icon playingIcon = context.select<FlyAudioHandler, bool>(
+            (value) => value.playbackState.value.playing)
+        ? const Icon(Icons.pause)
+        : const Icon(Icons.play_arrow);
+    LoopMode loopMode =
+        context.select<FlyAudioHandler, LoopMode>((value) => value.loopMode);
+    Icon? repeadModeIcon = loopMode == LoopMode.all
+        ? const Icon(Icons.repeat, color: Colors.blue)
+        : loopMode == LoopMode.one
+            ? const Icon(Icons.repeat_one, color: Colors.blue)
+            : const Icon(Icons.repeat);
 
     RenderedSong? currentSong = context
         .select<FlyAudioHandler, RenderedSong?>((value) => value.currentSong);
@@ -57,7 +49,7 @@ class _CurrentlyPlayingIslandState extends State<CurrentlyPlayingIsland> {
                     builder: (context) => SongPage(song: currentSong)));
           },
           child: Column(children: [
-            ProgressSlider(),
+            const ProgressSlider(),
             Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
               Expanded(
                 child: ClipRRect(
@@ -71,14 +63,14 @@ class _CurrentlyPlayingIslandState extends State<CurrentlyPlayingIsland> {
                   ),
                 ),
               ),
-              Spacer(),
+              const Spacer(),
               Expanded(
                 flex: 4,
                 child: Container(
                   constraints: BoxConstraints(
                     maxWidth: 50.w,
                   ),
-                  margin: EdgeInsets.symmetric(horizontal: 4),
+                  margin: const EdgeInsets.symmetric(horizontal: 4),
                   child: Column(
                     children: [
                       Text(
@@ -97,9 +89,15 @@ class _CurrentlyPlayingIslandState extends State<CurrentlyPlayingIsland> {
                   ),
                 ),
               ),
-              Spacer(),
+              const Spacer(),
               Row(
                 children: [
+                  IconButton(
+                    icon: repeadModeIcon,
+                    onPressed: () {
+                      context.read<FlyAudioHandler>().cycleRepeatMode();
+                    },
+                  ),
                   IconButton(
                     icon: playingIcon,
                     onPressed: () {

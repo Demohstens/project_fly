@@ -35,7 +35,8 @@ class FlyNavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Widget? homeScaffoldBody = context.watch<PageProvider>().currentPage;
+    Widget? homeScaffoldBody = context.watch<PageProvider>().currentPage ??
+        context.read<PageProvider>().pages[0];
 
     return Scaffold(
       drawer: FlyDrawer(),

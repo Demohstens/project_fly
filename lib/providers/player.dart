@@ -1,8 +1,8 @@
 import 'dart:developer' as dev;
 import 'package:audio_service/audio_service.dart';
-import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:just_audio/just_audio.dart';
 import 'package:project_fly/providers/library.dart';
 import 'package:project_fly/models/song.dart';
 import 'package:rxdart/src/subjects/behavior_subject.dart';
@@ -11,21 +11,28 @@ class FlyAudioHandler extends BaseAudioHandler
     with QueueHandler, SeekHandler, ChangeNotifier {
   final MusicLibrary musicLibrary;
   final _player = AudioPlayer();
-  double _volume = 0.2;
+  double _volume = 0.07;
   double playbackSpeed = 1.0;
+  int queueIndex = 0;
   RenderedSong? _currentSong;
   Duration _currentDuration = Duration.zero;
-  BehaviorSubject<PlaybackState> _playbackStateSubject =
+  final BehaviorSubject<PlaybackState> _playbackStateSubject =
       BehaviorSubject<PlaybackState>.seeded(PlaybackState());
 
+  @override
   BehaviorSubject<PlaybackState> get playbackState => _playbackStateSubject;
 
   @override
   FlyAudioHandler({required this.musicLibrary}) {
     _player.setVolume(volume);
+    _player.positionStream.listen((event) {
+      _currentDuration = event;
 
-    _player.onPositionChanged.listen((state) {
-      _onPositionChanged(state);
+      notifyListeners();
+    });
+    _player.playingStream.listen((event) {
+      _playbackStateSubject.add(PlaybackState(playing: event));
+      notifyListeners();
     });
   }
 
@@ -33,33 +40,33 @@ class FlyAudioHandler extends BaseAudioHandler
   get volume => _volume;
   RenderedSong? get currentSong => _currentSong;
   Duration? get currentDuration => _currentDuration;
+  AudioPlayer get player => _player;
+  LoopMode get loopMode => _player.loopMode;
 
-  // void getSongs() async {
-  //   Directory d = await getApplicationDocumentsDirectory();
-  //   List<FileSystemEntity> files = d.listSync();
-  //   notifyListeners();
-  // }
-  void _onPositionChanged(Duration position) {
-    _currentDuration = position;
-    notifyListeners();
-  }
-
-  void registerPlayerStateListener(Function(PlayerState?) func) {
-    _player.onPlayerStateChanged.listen(func);
-  }
-
-  void _onPlayerStateChanged(PlayerState state) {
-    if (state == PlayerState.stopped || state == PlayerState.disposed) {
-      stop();
+  Future<void> cycleRepeatMode() {
+    LoopMode nextMode;
+    switch (_player.loopMode) {
+      case LoopMode.off:
+        nextMode = LoopMode.one;
+        break;
+      case LoopMode.one:
+        nextMode = LoopMode.all;
+        break;
+      case LoopMode.all:
+        nextMode = LoopMode.off;
+        break;
     }
+    return setLoopMode(nextMode);
+  }
+
+  Future<void> setLoopMode(LoopMode repeatMode) async {
+    _player.setLoopMode(repeatMode);
   }
 
   @override
   Future<void> skipToNext() async {
     dev.log('Skipping to next $queue');
-
     super.skipToNext();
-    //TODO: Implement skipToNext
   }
 
   @override
@@ -67,6 +74,9 @@ class FlyAudioHandler extends BaseAudioHandler
     dev.log('Adding item to queue', name: 'FlyAudioHandler');
     return super.addQueueItem(mediaItem);
   }
+
+  @override
+  Future<void> skipToQueueItem(int i) => _player.seek(Duration.zero, index: i);
 
   @override
   Future<void> addQueueItems(List<MediaItem> mediaItems) async {
@@ -78,12 +88,6 @@ class FlyAudioHandler extends BaseAudioHandler
     super.skipToPrevious();
   }
 
-  /// Defines behavior of the player when the playback is stopped.
-  void setReleaseMode(ReleaseMode releaseMode) {
-    _player.setReleaseMode(releaseMode);
-    notifyListeners();
-  }
-
   void togglePlaying() {
     dev.log("Toggling playing");
     if (playbackState.value.playing) {
@@ -93,19 +97,21 @@ class FlyAudioHandler extends BaseAudioHandler
     }
   }
 
-  Future<void> onPlayFromMediaId(String mediaId,
+  @override
+  Future<void> playFromMediaId(String mediaId,
       [Map<String, dynamic>? extras]) async {
+    // TODO: implement playFromMediaId
+
     // 1. Find the song in your song library
     MediaItem? song = musicLibrary.findSongById(
         mediaId); // Assuming you have a musicLibrary instance available
 
-    RenderedSong renderedSong = await RenderedSong.fromMediaItem(song);
-    _player.setSource(
+    RenderedSong renderedSong = RenderedSong.fromMediaItem(song);
+    _player.setAudioSource(
         renderedSong.source); // Assuming your player has a setSource method
 
     // 4. Start playback
-    await _player
-        .play(renderedSong.source); // or _player.play() if not already playing
+    await _player.play(); // or _player.play() if not already playing
 
     _currentSong = renderedSong;
     playbackState.add(playbackState.value.copyWith(
@@ -122,12 +128,6 @@ class FlyAudioHandler extends BaseAudioHandler
     notifyListeners();
   }
 
-  @override
-  Future<void> playFromMediaId(String mediaId, [Map<String, dynamic>? extras]) {
-    // TODO: implement playFromMediaId
-    return onPlayFromMediaId(mediaId, extras);
-  }
-
   void playSong(RenderedSong song) async {
     MediaItem mItem = await song.toMediaItem();
     return playMediaItem(mItem);
@@ -135,19 +135,20 @@ class FlyAudioHandler extends BaseAudioHandler
 
   Future<void> playMediaItem(MediaItem mediaItem) async {
     // addQueueItem(mediaItem);
-    await playFromMediaId(mediaItem.id);
+    playFromMediaId(mediaItem.id);
   }
 
   void playErrorSound() {
-    _player.play(AssetSource('error.mp3'));
+    _player.setAsset('assets/error.mp3');
+    _player.play();
   }
 
   Future<void> play() async {
     _currentDuration = Duration.zero;
     if (currentSong != null) {
-      await _player.play(DeviceFileSource(currentSong!.path));
+      await _player.play();
     } else {
-      await _player.play(AssetSource('error.mp3'));
+      playErrorSound();
     }
     List<MediaItem> queueItems = musicLibrary.songs;
     _playbackStateSubject.add(PlaybackState(playing: true));
@@ -164,7 +165,8 @@ class FlyAudioHandler extends BaseAudioHandler
 
   Future<void> stop() async {
     _currentSong = null;
-    _player.stop();
+    await _player.stop();
+    _playbackStateSubject.add(PlaybackState(playing: false));
 
     notifyListeners();
   }
