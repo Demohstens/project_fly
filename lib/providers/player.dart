@@ -65,18 +65,26 @@ class FlyAudioHandler extends BaseAudioHandler
 
   @override
   Future<void> skipToNext() async {
-    dev.log('Skipping to next $queue');
-    super.skipToNext();
+    if (queueIndex + 1 >= queue.value.length) return;
+    _currentSong = RenderedSong.fromMediaItem(queue.value[queueIndex + 1]);
+    _player.setAudioSource(_currentSong!.source);
+    queueIndex++;
+    play();
   }
 
   @override
   Future<void> addQueueItem(MediaItem mediaItem) {
     dev.log('Adding item to queue', name: 'FlyAudioHandler');
+
     return super.addQueueItem(mediaItem);
   }
 
   @override
-  Future<void> skipToQueueItem(int i) => _player.seek(Duration.zero, index: i);
+  Future<void> skipToQueueItem(int i) {
+    playbackState.add(PlaybackState(queueIndex: i));
+
+    return _player.seek(Duration.zero, index: i);
+  }
 
   @override
   Future<void> addQueueItems(List<MediaItem> mediaItems) async {
@@ -111,7 +119,9 @@ class FlyAudioHandler extends BaseAudioHandler
         renderedSong.source); // Assuming your player has a setSource method
 
     // 4. Start playback
-    await _player.play(); // or _player.play() if not already playing
+    playbackState.add(PlaybackState(playing: true));
+
+    play(); // or _player.play() if not already playing
 
     _currentSong = renderedSong;
     playbackState.add(playbackState.value.copyWith(
@@ -134,8 +144,23 @@ class FlyAudioHandler extends BaseAudioHandler
   }
 
   Future<void> playMediaItem(MediaItem mediaItem) async {
-    // addQueueItem(mediaItem);
-    playFromMediaId(mediaItem.id);
+    RenderedSong renderedSong = RenderedSong.fromMediaItem(mediaItem);
+    _player.setAudioSource(renderedSong.source);
+
+    await play();
+
+    _currentSong = renderedSong;
+    playbackState.add(playbackState.value.copyWith(
+      processingState: AudioProcessingState.ready,
+      playing: true,
+    )); // Assuming playbackState is a BehaviorSubject
+    List<MediaItem> queueItems = musicLibrary.songs;
+    await addQueueItems(queueItems);
+    playbackState.add(playbackState.value.copyWith(
+      queueIndex: 0, // Set the initial queueIndex to 0
+    ));
+
+    notifyListeners();
   }
 
   void playErrorSound() {
@@ -143,17 +168,19 @@ class FlyAudioHandler extends BaseAudioHandler
     _player.play();
   }
 
+  @override
   Future<void> play() async {
     _currentDuration = Duration.zero;
     if (currentSong != null) {
       await _player.play();
+      playbackState.add(PlaybackState(playing: true));
+
+      List<MediaItem> queueItems = musicLibrary.songs;
+      await addQueueItems(queueItems);
+      notifyListeners();
     } else {
       playErrorSound();
     }
-    List<MediaItem> queueItems = musicLibrary.songs;
-    _playbackStateSubject.add(PlaybackState(playing: true));
-    await addQueueItems(queueItems);
-    notifyListeners();
   }
 
   Future<void> pause() async {

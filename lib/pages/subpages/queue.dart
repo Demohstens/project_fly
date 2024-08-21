@@ -13,7 +13,7 @@ class QueuePage extends StatelessWidget {
 
     return ListView(
       children: <Widget>[
-        Text(
+        const Text(
           "Queue",
           textAlign: TextAlign.center,
           style: TextStyle(
