@@ -83,6 +83,8 @@ class RenderedSong {
 
   factory RenderedSong.fromMediaItem(MediaItem item) {
     String path = item.extras!['path'] as String;
+    Tag? tag;
+    AudioTags.read(path).then((value) => tag = value);
     return RenderedSong(
       path: path,
       title: item.title,
@@ -91,7 +93,11 @@ class RenderedSong {
       artist: item.artist,
       genre: item.genre,
       releaseDateYear: item.extras!['year'],
-      albumArt: null,
+      albumArt: tag == null
+          ? Image.asset("assets/images/placeholder_album_art.png")
+          : tag!.pictures.isEmpty
+              ? Image.asset("assets/images/placeholder_album_art.png")
+              : Image.memory(tag!.pictures.first.bytes),
       lyrics: null,
     );
   }

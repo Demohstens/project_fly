@@ -1,10 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:project_fly/components/progress_slider.dart';
 import 'package:project_fly/main.dart';
-import 'package:project_fly/providers/player.dart';
 import 'package:project_fly/models/song.dart';
 import 'package:sizer/sizer.dart';
-import 'package:provider/provider.dart';
 import 'package:aura_box/aura_box.dart';
 
 class SongPage extends StatefulWidget {
@@ -16,6 +16,22 @@ class SongPage extends StatefulWidget {
 }
 
 class _SongPageState extends State<SongPage> {
+  StreamSubscription? stateListener;
+  @override
+  void initState() {
+    stateListener = audioHandler.playbackState.listen((state) {
+      setState(() {});
+    });
+    // TODO: implement initState
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    stateListener?.cancel();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -98,12 +114,9 @@ class ButtonRow extends StatelessWidget {
                     child: RotatedBox(
                       quarterTurns: 3,
                       child: Slider(
-                          value: 0.0,
-                          //  context.watch<FlyAudioHandler>().volume,
+                          value: 00,
                           onChanged: (newVolumte) {
-                            // context
-                            //     .read<FlyAudioHandler>()
-                            //     .changeVolume(newVolumte);
+                            audioHandler.setVolume(newVolumte);
                           }),
                     ),
                     onPressed: () {
@@ -145,13 +158,13 @@ class ButtonRow extends StatelessWidget {
             ),
             // Play button
             IconButton(
-                onPressed: () {
-                  // audioHandler.togglePlaying();
-                },
-                icon:
-                    // context.watch<FlyAudioHandler>().playbackState.value.playing
-                    //     ? Icon(Icons.pause) :
-                    Icon(Icons.play_arrow)),
+              onPressed: () {
+                audioHandler.togglePlaying();
+              },
+              icon: audioHandler.playbackState.value.playing
+                  ? Icon(Icons.pause)
+                  : Icon(Icons.play_arrow),
+            ),
             IconButton(
                 onPressed: () {},
                 // context.read<FlyAudioHandler>().playErrorSound(),

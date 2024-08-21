@@ -7,6 +7,7 @@ import 'package:project_fly/models/song.dart';
 class ProgressSlider extends StatefulWidget {
   const ProgressSlider({Key? key}) : super(key: key);
 
+  @override
   _ProgressSliderState createState() => _ProgressSliderState();
 }
 
@@ -33,7 +34,7 @@ class _ProgressSliderState extends State<ProgressSlider> {
       setState(() {
         if (song != null) {
           currentSong = song;
-          maxDuration = song.duration.inMilliseconds.toDouble() ?? 0;
+          maxDuration = song.duration.inMilliseconds.toDouble();
         }
       });
     });

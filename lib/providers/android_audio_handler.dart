@@ -51,6 +51,9 @@ class AndroidAudioHandler extends BaseAudioHandler {
     // Loads the audio source into the player
     await _player.setAudioSource(source);
     currentSong.add(RenderedSong.fromMediaItem(mediaItem));
+
+    // Handles the creation of the queue
+    // TODO: Implement queue
   }
 
   @override
@@ -140,14 +143,19 @@ class AndroidAudioHandler extends BaseAudioHandler {
   /* Methods Responsible for managing the Queue */
   @override
   Future<void> addQueueItems(List<MediaItem> mediaItems) async {
-    if (!Platform.isAndroid) {
-      throw UnimplementedError();
+    if (Platform.isAndroid) {
+      List<AudioSource> sources = [];
+      for (MediaItem item in mediaItems) {
+        sources.add(AudioSource.file(item.extras!['path']));
+      }
+      await _player.setAudioSource(ConcatenatingAudioSource(children: sources));
+    } else {
+      queue.add(mediaItems);
     }
-    List<AudioSource> sources = [];
-    for (MediaItem item in mediaItems) {
-      sources.add(AudioSource.file(item.extras!['path']));
-    }
-    await _player.setAudioSource(ConcatenatingAudioSource(children: sources));
+  }
+
+  void clearQueue() {
+    queue.value.clear();
   }
 
   // * LISTENERS * //
