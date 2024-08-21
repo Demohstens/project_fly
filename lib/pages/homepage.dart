@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:project_fly/components/currently_playing_island.dart';
 import 'package:project_fly/components/fly_drawer.dart';
-import 'package:project_fly/providers/library.dart';
+import 'package:project_fly/main.dart';
 import 'package:project_fly/providers/page_provider.dart';
 import 'package:project_fly/providers/settings.dart';
 import 'package:provider/provider.dart';
@@ -29,7 +29,6 @@ class _HomePageState extends State<HomePage> {
 }
 
 //  SongComponent(song: SampleSong())
-
 class FlyNavBar extends StatelessWidget {
   FlyNavBar({super.key});
 
@@ -46,8 +45,7 @@ class FlyNavBar extends StatelessWidget {
         centerTitle: true,
         title: TextButton(
           onPressed: () {
-            context
-                .read<MusicLibrary>()
+            musicLibrary
                 .updateSongList(context.read<Settings>().musicDirectory);
           },
           child: Text("Project Fly"),

@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:project_fly/providers/android_audio_handler.dart';
 import 'package:project_fly/providers/library.dart';
 import 'package:project_fly/providers/page_provider.dart';
-
 import 'package:project_fly/providers/settings.dart' as settings;
 import 'package:project_fly/pages/homepage.dart';
 import 'package:provider/provider.dart';
@@ -41,7 +40,6 @@ class Fly extends StatelessWidget {
     return MultiProvider(
         providers: [
           ChangeNotifierProvider(create: (_) => settings.Settings()),
-          ChangeNotifierProvider(create: (_) => musicLibrary),
           ChangeNotifierProvider(create: (_) => PageProvider()),
         ],
         child: ResponsiveSizer(

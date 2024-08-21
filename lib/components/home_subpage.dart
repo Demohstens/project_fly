@@ -1,7 +1,7 @@
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
 import 'package:project_fly/components/song_list_item.dart';
-import 'package:project_fly/providers/library.dart';
+import 'package:project_fly/main.dart';
 import 'package:project_fly/providers/settings.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
@@ -20,13 +20,12 @@ class ListOfSongs extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    List<MediaItem> songs = context.watch<MusicLibrary>().songs;
+    List<MediaItem> songs = musicLibrary.songs;
     final favoriteCards = context.read<Settings>().favoriteCards;
 
     return RefreshIndicator(
       onRefresh: () async {
-        return context
-            .read<MusicLibrary>()
+        return musicLibrary
             .updateSongList(context.read<Settings>().musicDirectory);
       },
       child: CustomScrollView(slivers: [

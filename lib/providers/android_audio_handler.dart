@@ -4,6 +4,7 @@ import 'dart:io';
 
 import 'package:audio_service/audio_service.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:project_fly/main.dart';
 import 'package:project_fly/models/song.dart';
 import 'package:rxdart/rxdart.dart';
 
@@ -13,6 +14,8 @@ class AndroidAudioHandler extends BaseAudioHandler {
   final _player = AudioPlayer();
 
   bool _readyToPlay = false;
+
+  int queueIndex = 0;
 
   BehaviorSubject<RenderedSong?> currentSong = BehaviorSubject.seeded(null);
 
@@ -103,6 +106,7 @@ class AndroidAudioHandler extends BaseAudioHandler {
         ],
         processingState: AudioProcessingState.ready,
         systemActions: {MediaAction.seek}));
+    generateQueue();
     await _player.play();
   }
 
@@ -132,7 +136,12 @@ class AndroidAudioHandler extends BaseAudioHandler {
 
   @override
   Future<void> skipToNext() async {
-    await _player.seekToNext();
+    if (queueIndex + 1 >= queue.value.length) return;
+    currentSong = RenderedSong.fromMediaItem(queue.value[queueIndex + 1])
+        as BehaviorSubject<RenderedSong?>;
+    _player.setAudioSource(currentSong.value!.source);
+    queueIndex++;
+    play();
   }
 
   @override
@@ -140,7 +149,42 @@ class AndroidAudioHandler extends BaseAudioHandler {
     await _player.seekToPrevious();
   }
 
+  Future<void> cycleRepeatMode() {
+    LoopMode nextMode;
+    switch (_player.loopMode) {
+      case LoopMode.off:
+        nextMode = LoopMode.one;
+        break;
+      case LoopMode.one:
+        nextMode = LoopMode.all;
+        break;
+      case LoopMode.all:
+        nextMode = LoopMode.off;
+        break;
+    }
+    return setLoopMode(nextMode);
+  }
+
+  Future<void> setLoopMode(LoopMode repeatMode) async {
+    _player.setLoopMode(repeatMode);
+  }
+
   /* Methods Responsible for managing the Queue */
+
+  void generateQueue() {
+    if (!Platform.isAndroid) {
+      if (queue.value.isEmpty) {
+        addQueueItems(musicLibrary.songs);
+      }
+    } else {
+      List<AudioSource> sources = [];
+      for (MediaItem item in musicLibrary.songs) {
+        sources.add(AudioSource.file(item.extras!['path']));
+      }
+      _player.setAudioSource(ConcatenatingAudioSource(children: sources));
+    }
+  }
+
   @override
   Future<void> addQueueItems(List<MediaItem> mediaItems) async {
     if (Platform.isAndroid) {

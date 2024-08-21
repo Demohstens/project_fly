@@ -2,12 +2,15 @@ import 'dart:developer' as dev;
 import 'dart:io';
 
 import 'package:audio_service/audio_service.dart';
-import 'package:flutter/material.dart';
 import 'package:project_fly/models/song.dart';
 
-class MusicLibrary extends ChangeNotifier {
+class MusicLibrary {
   List<MediaItem> _mediaItems = [];
   List<MediaItem> get songs => _mediaItems;
+
+  MusicLibrary() {
+    dev.log("MusicLibrary initialized");
+  }
 
   MediaItem findSongById(String id) {
     dev.log("Finding song by id: $id");
@@ -22,7 +25,6 @@ class MusicLibrary extends ChangeNotifier {
       return;
     }
     depthSearchFolder(dir);
-    notifyListeners();
   }
 
   Future<void> depthSearchFolder(Directory dir) async {
@@ -45,12 +47,10 @@ class MusicLibrary extends ChangeNotifier {
         // await depthSearchFolder(entity);
       }
     }
-    notifyListeners();
   }
 
   void addSong(MediaItem song) {
     _mediaItems.add(song);
     print("Added song ${song.title}");
-    notifyListeners();
   }
 }
