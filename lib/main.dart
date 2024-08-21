@@ -1,22 +1,22 @@
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
+import 'package:project_fly/providers/android_audio_handler.dart';
 import 'package:project_fly/providers/library.dart';
 import 'package:project_fly/providers/page_provider.dart';
 
-import 'package:project_fly/providers/player.dart';
 import 'package:project_fly/providers/settings.dart' as settings;
 import 'package:project_fly/pages/homepage.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
 
-late FlyAudioHandler audioHandler;
+late AndroidAudioHandler audioHandler;
 MusicLibrary musicLibrary = MusicLibrary();
 // late FirebaseFirestore db;
 // late User? user;
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized(); // Ensure this is called
   audioHandler = await AudioService.init(
-      builder: () => FlyAudioHandler(musicLibrary: musicLibrary),
+      builder: () => AndroidAudioHandler(),
       config: const AudioServiceConfig(
         androidNotificationChannelId: 'com.demosoftworks.fly.fly.channel.audio',
         androidNotificationChannelName: 'Fly Music',
@@ -42,7 +42,6 @@ class Fly extends StatelessWidget {
         providers: [
           ChangeNotifierProvider(create: (_) => settings.Settings()),
           ChangeNotifierProvider(create: (_) => musicLibrary),
-          ChangeNotifierProvider(create: (_) => audioHandler),
           ChangeNotifierProvider(create: (_) => PageProvider()),
         ],
         child: ResponsiveSizer(

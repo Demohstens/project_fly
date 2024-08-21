@@ -9,7 +9,7 @@ class QueuePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    List<MediaItem> queue = context.watch<FlyAudioHandler>().queue.value;
+    // List<MediaItem> queue = context.watch<FlyAudioHandler>().queue.value;
 
     return ListView(
       children: <Widget>[
@@ -22,7 +22,7 @@ class QueuePage extends StatelessWidget {
           ),
         ),
         Divider(),
-        for (MediaItem song in queue) SongListitem(song: song)
+        // for (MediaItem song in queue) SongListitem(song: song)
       ],
     );
   }

@@ -1,32 +1,76 @@
+import 'dart:async';
+import 'dart:developer';
+
+import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
-import 'package:just_audio/just_audio.dart';
 import 'package:project_fly/components/progress_slider.dart';
-import 'package:project_fly/providers/player.dart';
+import 'package:project_fly/main.dart';
 import 'package:project_fly/models/song.dart';
+
 import 'package:project_fly/pages/song_page.dart';
 import 'package:sizer/sizer.dart';
-import 'package:provider/provider.dart';
 
-class CurrentlyPlayingIsland extends StatelessWidget {
+class CurrentlyPlayingIsland extends StatefulWidget {
   const CurrentlyPlayingIsland({super.key});
+
+  // Icon playingIcon = context.select<FlyAudioHandler, bool>(
+  //         (value) => value.playbackState.value.playing)
+  //     ? const Icon(Icons.pause)
+  //     : const Icon(Icons.play_arrow);
+  // LoopMode loopMode =
+  //     context.select<FlyAudioHandler, LoopMode>((value) => value.loopMode);
+  // Icon? repeadModeIcon = loopMode == LoopMode.all
+  //     ? const Icon(Icons.repeat, color: Colors.blue)
+  //     : loopMode == LoopMode.one
+  //         ? const Icon(Icons.repeat_one, color: Colors.blue)
+  //         : const Icon(Icons.repeat);
+
+  @override
+  State<StatefulWidget> createState() => _CurrentlyPlayingIslandState();
+}
+
+class _CurrentlyPlayingIslandState extends State<CurrentlyPlayingIsland> {
+  Icon playingIcon = const Icon(Icons.play_arrow);
+  Icon repeadModeIcon = const Icon(Icons.repeat);
+  RenderedSong? currentSong;
+
+  late StreamSubscription _mediaItemSubscription;
+  late StreamSubscription _playbackStateSubscription;
+
+  @override
+  void initState() {
+    _mediaItemSubscription = audioHandler.currentSong.listen((song) {
+      setState(() {
+        log("MediaItem changed: $song");
+        currentSong = song;
+      });
+    });
+
+    _playbackStateSubscription = audioHandler.playbackState.listen((event) {
+      setState(() {
+        playingIcon = event.playing
+            ? const Icon(Icons.pause)
+            : const Icon(Icons.play_arrow);
+        repeadModeIcon = event.repeatMode == AudioServiceRepeatMode.all
+            ? const Icon(Icons.repeat, color: Colors.blue)
+            : event.repeatMode == AudioServiceRepeatMode.one
+                ? const Icon(Icons.repeat_one, color: Colors.blue)
+                : const Icon(Icons.repeat);
+      });
+    });
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _playbackStateSubscription.cancel();
+    _mediaItemSubscription.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    Icon playingIcon = context.select<FlyAudioHandler, bool>(
-            (value) => value.playbackState.value.playing)
-        ? const Icon(Icons.pause)
-        : const Icon(Icons.play_arrow);
-    LoopMode loopMode =
-        context.select<FlyAudioHandler, LoopMode>((value) => value.loopMode);
-    Icon? repeadModeIcon = loopMode == LoopMode.all
-        ? const Icon(Icons.repeat, color: Colors.blue)
-        : loopMode == LoopMode.one
-            ? const Icon(Icons.repeat_one, color: Colors.blue)
-            : const Icon(Icons.repeat);
-
-    RenderedSong? currentSong = context
-        .select<FlyAudioHandler, RenderedSong?>((value) => value.currentSong);
-
+    log("Building CurrentlyPlayingIsland");
     if (currentSong == null) {
       return Container();
     } else {
@@ -46,7 +90,7 @@ class CurrentlyPlayingIsland extends StatelessWidget {
             Navigator.push(
                 context,
                 MaterialPageRoute(
-                    builder: (context) => SongPage(song: currentSong)));
+                    builder: (context) => SongPage(song: currentSong!)));
           },
           child: Column(children: [
             const ProgressSlider(),
@@ -58,7 +102,7 @@ class CurrentlyPlayingIsland extends StatelessWidget {
                     child: SizedBox(
                       width: 10.w,
                       height: 10.h,
-                      child: currentSong.albumArt,
+                      child: currentSong!.albumArt,
                     ),
                   ),
                 ),
@@ -74,15 +118,15 @@ class CurrentlyPlayingIsland extends StatelessWidget {
                   child: Column(
                     children: [
                       Text(
-                        currentSong.title,
+                        currentSong!.title,
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      if (currentSong.artist != null)
+                      if (currentSong!.artist != null)
                         Text(
-                          currentSong.artist!,
+                          currentSong!.artist!,
                           overflow: TextOverflow.ellipsis,
                         ),
                     ],
@@ -95,19 +139,19 @@ class CurrentlyPlayingIsland extends StatelessWidget {
                   IconButton(
                     icon: repeadModeIcon,
                     onPressed: () {
-                      context.read<FlyAudioHandler>().cycleRepeatMode();
+                      // audioHandler.toggleLoopMode(); // TODO
                     },
                   ),
                   IconButton(
                     icon: playingIcon,
                     onPressed: () {
-                      context.read<FlyAudioHandler>().togglePlaying();
+                      audioHandler.togglePlaying();
                     },
                   ),
                   IconButton(
                       icon: const Icon(Icons.skip_next),
                       onPressed: () {
-                        context.read<FlyAudioHandler>().skipToNext();
+                        audioHandler.skipToNext();
                       }),
                 ],
               ),

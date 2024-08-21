@@ -98,11 +98,12 @@ class ButtonRow extends StatelessWidget {
                     child: RotatedBox(
                       quarterTurns: 3,
                       child: Slider(
-                          value: context.watch<FlyAudioHandler>().volume,
+                          value: 0.0,
+                          //  context.watch<FlyAudioHandler>().volume,
                           onChanged: (newVolumte) {
-                            context
-                                .read<FlyAudioHandler>()
-                                .changeVolume(newVolumte);
+                            // context
+                            //     .read<FlyAudioHandler>()
+                            //     .changeVolume(newVolumte);
                           }),
                     ),
                     onPressed: () {
@@ -145,15 +146,15 @@ class ButtonRow extends StatelessWidget {
             // Play button
             IconButton(
                 onPressed: () {
-                  audioHandler.togglePlaying();
+                  // audioHandler.togglePlaying();
                 },
                 icon:
-                    context.watch<FlyAudioHandler>().playbackState.value.playing
-                        ? Icon(Icons.pause)
-                        : Icon(Icons.play_arrow)),
+                    // context.watch<FlyAudioHandler>().playbackState.value.playing
+                    //     ? Icon(Icons.pause) :
+                    Icon(Icons.play_arrow)),
             IconButton(
-                onPressed: () =>
-                    context.read<FlyAudioHandler>().playErrorSound(),
+                onPressed: () {},
+                // context.read<FlyAudioHandler>().playErrorSound(),
                 icon: Icon(Icons.skip_next)),
             const Icon(Icons.playlist_add),
           ]),
@@ -162,7 +163,8 @@ class ButtonRow extends StatelessWidget {
 }
 
 Icon getVolumeIcon(BuildContext context) {
-  final volume = context.watch<FlyAudioHandler>().volume;
+  final volume = 0.0;
+  // audioHandler.;
   if (volume == 0) {
     return Icon(Icons.volume_off);
   } else if (volume < 0.5) {

@@ -1,6 +1,8 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
-import 'package:project_fly/providers/player.dart';
-import 'package:provider/provider.dart';
+import 'package:project_fly/main.dart';
+import 'package:project_fly/models/song.dart';
 
 class ProgressSlider extends StatefulWidget {
   const ProgressSlider({Key? key}) : super(key: key);
@@ -11,18 +13,45 @@ class ProgressSlider extends StatefulWidget {
 class _ProgressSliderState extends State<ProgressSlider> {
   bool isSeeking = false;
   double seekValue = 0;
+  RenderedSong? currentSong = audioHandler.currentSong.value;
+  double maxDuration = 0;
+  double? currentDuration;
+
+  StreamSubscription? _positionSubscription;
+  StreamSubscription? _currentSongSubscription;
+
+  @override
+  void dispose() {
+    _currentSongSubscription?.cancel();
+    _positionSubscription?.cancel();
+    super.dispose();
+  }
+
+  @override
+  void initState() {
+    _currentSongSubscription = audioHandler.currentSong.listen((song) {
+      setState(() {
+        if (song != null) {
+          currentSong = song;
+          maxDuration = song.duration.inMilliseconds.toDouble() ?? 0;
+        }
+      });
+    });
+    _positionSubscription = audioHandler.addPositionListener((position) {
+      setState(() {
+        currentDuration =
+            position.inMilliseconds.clamp(0, maxDuration.toInt()).toDouble();
+        ;
+      });
+    });
+    super.initState();
+    maxDuration = currentSong != null
+        ? currentSong!.duration.inMilliseconds.toDouble()
+        : 0;
+  }
+
   @override
   Widget build(BuildContext context) {
-    var currentSong = context.watch<FlyAudioHandler>().currentSong;
-
-    double maxDuration = currentSong?.duration.inMilliseconds.toDouble() ?? 0;
-    double currentDuration = context
-            .watch<
-                FlyAudioHandler>() // TODO: update using listener from audio_service
-            .currentDuration
-            ?.inMilliseconds
-            .toDouble() ??
-        0;
     return SliderTheme(
       data: SliderThemeData(
         thumbShape:
@@ -34,7 +63,7 @@ class _ProgressSliderState extends State<ProgressSlider> {
       child: Slider(
           min: 0,
           max: maxDuration > 0 ? maxDuration : 1, // Prevents max from being 0
-          value: isSeeking ? seekValue : currentDuration.clamp(0, maxDuration),
+          value: isSeeking ? seekValue : currentDuration ?? 0,
           onChangeStart: (value) {
             setState(() {
               isSeeking = true;
@@ -52,9 +81,7 @@ class _ProgressSliderState extends State<ProgressSlider> {
           onChangeEnd: (value) {
             setState(() {
               isSeeking = false;
-              context
-                  .read<FlyAudioHandler>()
-                  .seekTo(Duration(milliseconds: seekValue.toInt()));
+              audioHandler.seek(Duration(milliseconds: value.toInt()));
             });
           }),
     );

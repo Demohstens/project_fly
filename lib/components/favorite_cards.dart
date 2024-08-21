@@ -3,10 +3,9 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:project_fly/pages/subpages/queue.dart';
 import 'package:project_fly/providers/page_provider.dart';
-import 'package:project_fly/providers/player.dart';
-import 'package:project_fly/models/song.dart';
+
 import 'package:project_fly/pages/settings_page.dart';
-import 'package:project_fly/pages/song_page.dart';
+
 import 'package:provider/provider.dart';
 
 enum FavoriteCards {
@@ -30,27 +29,27 @@ class FavoriteCard extends StatelessWidget {
   Widget build(BuildContext context) {
     switch (typeOfCard) {
       case FavoriteCards.favoriteSongs:
-        return FavoriteSongsCard();
+        return const FavoriteSongsCard();
       case FavoriteCards.history:
-        return HistoryCard();
+        return const HistoryCard();
       case FavoriteCards.albums:
-        return AlbumsCard();
+        return const AlbumsCard();
       case FavoriteCards.artists:
         return ArtistsCard();
       case FavoriteCards.playlists:
         return PlaylistsCard();
       case FavoriteCards.shufflePlayAll:
-        return ShuffleCard();
+        return const ShuffleCard();
       case FavoriteCards.currentSong:
-        return CurrentSongCard();
+      // return CurrentSongCard();
       case FavoriteCards.queue:
-        return QueueCard();
+        return const QueueCard();
       case FavoriteCards.settings:
-        return SettingsCard();
+        return const SettingsCard();
       case FavoriteCards.import:
-        return ImportSongsCard();
+        return const ImportSongsCard();
       case FavoriteCards.cusomPlaylist:
-        return CustomPlaylistCard();
+        return const CustomPlaylistCard();
       default:
         throw Exception('Invalid type of card');
     }
@@ -75,13 +74,13 @@ class ShortcutCard extends StatelessWidget {
         child: GestureDetector(
             onTap: onTap,
             child: Container(
-                margin: EdgeInsets.all(9),
-                padding: EdgeInsets.all(8),
+                margin: const EdgeInsets.all(9),
+                padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(8),
                   color: color,
                 ),
-                constraints: BoxConstraints(minHeight: 50),
+                constraints: const BoxConstraints(minHeight: 50),
                 child: Row(children: [
                   icon,
                   Text(
@@ -98,7 +97,7 @@ class FavoriteSongsCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ShortcutCard(
-        icon: Icon(Icons.favorite),
+        icon: const Icon(Icons.favorite),
         text: "Favorites",
         onTap: () {},
         color: Colors.redAccent);
@@ -111,7 +110,7 @@ class HistoryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ShortcutCard(
-        icon: Icon(Icons.history),
+        icon: const Icon(Icons.history),
         text: "History",
         onTap: () {},
         color: Colors.green);
@@ -124,7 +123,7 @@ class AlbumsCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ShortcutCard(
-        icon: Icon(Icons.album),
+        icon: const Icon(Icons.album),
         text: "Albums",
         onTap: () {},
         color: Colors.orange);
@@ -137,7 +136,7 @@ class ArtistsCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ShortcutCard(
-        icon: Icon(Icons.person),
+        icon: const Icon(Icons.person),
         text: "Artists",
         onTap: () {},
         color: Colors.orange);
@@ -149,7 +148,7 @@ class PlaylistsCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ShortcutCard(
-        icon: Icon(Icons.playlist_play),
+        icon: const Icon(Icons.playlist_play),
         text: "Playlist",
         onTap: () {},
         color: const Color.fromARGB(255, 178, 19, 19));
@@ -162,7 +161,7 @@ class ShuffleCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ShortcutCard(
-        icon: Icon(Icons.shuffle),
+        icon: const Icon(Icons.shuffle),
         text: "Shuffle Play All",
         onTap: () {},
         color: const Color.fromARGB(255, 19, 178, 117));
@@ -175,11 +174,11 @@ class QueueCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ShortcutCard(
-        icon: Icon(Icons.queue_music),
+        icon: const Icon(Icons.queue_music),
         text: "Queue",
         onTap: () {
           log("Queue card pressed");
-          context.read<PageProvider>().setToCustomPage(QueuePage());
+          context.read<PageProvider>().setToCustomPage(const QueuePage());
         },
         color: const Color.fromARGB(255, 178, 19, 19));
   }
@@ -191,7 +190,7 @@ class ImportSongsCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ShortcutCard(
-        icon: Icon(Icons.label_important),
+        icon: const Icon(Icons.label_important),
         text: "Import songs",
         onTap: () {},
         color: const Color.fromARGB(255, 22, 195, 218));
@@ -204,7 +203,7 @@ class CustomPlaylistCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ShortcutCard(
-        icon: Icon(Icons.label_important),
+        icon: const Icon(Icons.label_important),
         text: "PLAYLIST TITLE", // TODO
         onTap: () {},
         color: const Color.fromARGB(255, 22, 195, 218));
@@ -217,37 +216,39 @@ class SettingsCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ShortcutCard(
-        icon: Icon(Icons.music_note),
+        icon: const Icon(Icons.music_note),
         text: "Settings",
         onTap: () {
-          Navigator.push(
-              context, MaterialPageRoute(builder: (context) => SettingsPage()));
+          Navigator.push(context,
+              MaterialPageRoute(builder: (context) => const SettingsPage()));
         },
         color: Colors.grey);
   }
 }
 
-class CurrentSongCard extends StatelessWidget {
-  const CurrentSongCard({super.key});
+// class CurrentSongCard extends StatelessWidget {
+//   const CurrentSongCard({super.key});
 
-  @override
-  Widget build(BuildContext context) {
-    RenderedSong? song = context.watch<FlyAudioHandler>().currentSong;
-    if (song == null) {
-      return ShortcutCard(
-          icon: Icon(Icons.music_note),
-          text: "Currently playing...",
-          onTap: () {},
-          color: Colors.grey);
-    } else {
-      return ShortcutCard(
-          icon: Icon(Icons.music_note),
-          text: "Currently playing...",
-          onTap: () {
-            Navigator.push(context,
-                MaterialPageRoute(builder: (context) => SongPage(song: song)));
-          },
-          color: Colors.grey);
-    }
-  }
-}
+//   @override
+//   Widget build(BuildContext context) {
+//     RenderedSong? song = audioHandler.mediaItem.value != null
+//         ? RenderedSong.fromMediaItem(audioHandler.mediaItem.value!)
+//         : null;
+//     if (song == null) {
+//       return ShortcutCard(
+//           icon: Icon(Icons.music_note),
+//           text: "Currently playing...",
+//           onTap: () {},
+//           color: Colors.grey);
+//     } else {
+//       return ShortcutCard(
+//           icon: Icon(Icons.music_note),
+//           text: "Currently playing...",
+//           onTap: () {
+//             Navigator.push(context,
+//                 MaterialPageRoute(builder: (context) => SongPage(song: song)));
+//           },
+//           color: Colors.grey);
+//     }
+//   }
+// }
