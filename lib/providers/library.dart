@@ -2,11 +2,12 @@ import 'dart:developer' as dev;
 import 'dart:io';
 
 import 'package:audio_service/audio_service.dart';
+import 'package:project_fly/main.dart';
 import 'package:project_fly/models/song.dart';
 
 class MusicLibrary {
-  List<MediaItem> _mediaItems = [];
-  List<MediaItem> get songs => _mediaItems;
+  List<MediaItem> get songs => userData.songs;
+  List<MediaItem> _songsTemp = [];
 
   MusicLibrary() {
     dev.log("MusicLibrary initialized");
@@ -14,24 +15,25 @@ class MusicLibrary {
 
   MediaItem findSongById(String id) {
     dev.log("Finding song by id: $id");
-    return _mediaItems.firstWhere((element) => element.id == id);
+    return songs.firstWhere((element) => element.id == id);
   }
 
   void updateSongList(Directory? dir) {
     print("Updating song list");
-    _mediaItems = [];
+    _songsTemp = [];
     if (dir == null) {
-      print("Cant update song list, dir is null");
+      dev.log("Cant update song list, dir is null");
       return;
     }
     depthSearchFolder(dir);
+    userData.songs = _songsTemp;
+    userData.saveData();
   }
 
   Future<void> depthSearchFolder(Directory dir) async {
-    print("Searching folder: ${dir.path}");
+    dev.log("Searching folder: ${dir.path}");
     await for (FileSystemEntity entity
         in dir.list(recursive: true, followLinks: false)) {
-      print(entity);
       if (entity is File) {
         String ext = entity.path.split('.').last;
         if (ext == 'mp3' || ext == 'm4a' || ext == 'flac' || ext == 'mp4') {
@@ -39,9 +41,7 @@ class MusicLibrary {
           if (song != null) {
             addSong(song);
           }
-        } else {
-          print("Skipping file ${entity.path}. Format not supported");
-        }
+        } else {}
       } else if (entity is Directory) {
         // Optional: Uncomment if you want to recurse into directories as they are found
         // await depthSearchFolder(entity);
@@ -50,7 +50,6 @@ class MusicLibrary {
   }
 
   void addSong(MediaItem song) {
-    _mediaItems.add(song);
-    print("Added song ${song.title}");
+    _songsTemp.add(song);
   }
 }

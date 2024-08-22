@@ -137,8 +137,7 @@ class AndroidAudioHandler extends BaseAudioHandler {
   @override
   Future<void> skipToNext() async {
     if (queueIndex + 1 >= queue.value.length) return;
-    currentSong = RenderedSong.fromMediaItem(queue.value[queueIndex + 1])
-        as BehaviorSubject<RenderedSong?>;
+    currentSong.add(RenderedSong.fromMediaItem(queue.value[queueIndex + 1]));
     _player.setAudioSource(currentSong.value!.source);
     queueIndex++;
     play();

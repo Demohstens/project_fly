@@ -53,6 +53,7 @@ dependencies:
   uuid: ^4.4.2
   just_audio: ^0.9.37
   just_audio_windows: ^0.2.1
+  rxdart: ^0.28.0
 
 dev_dependencies:
   flutter_test:

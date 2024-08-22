@@ -22,11 +22,11 @@ class Settings extends ChangeNotifier {
   }
 
   bool _isDarkMode = false;
-  List<Widget> _favoriteCards = [
-    FavoriteCard(typeOfCard: FavoriteCards.currentSong),
-    FavoriteCard(typeOfCard: FavoriteCards.queue),
-    FavoriteCard(typeOfCard: FavoriteCards.playlists),
-    FavoriteCard(typeOfCard: FavoriteCards.settings),
+  final List<Widget> _favoriteCards = [
+    const FavoriteCard(typeOfCard: FavoriteCards.currentSong),
+    const FavoriteCard(typeOfCard: FavoriteCards.queue),
+    const FavoriteCard(typeOfCard: FavoriteCards.playlists),
+    const FavoriteCard(typeOfCard: FavoriteCards.settings),
   ];
   bool get isDarkMode => _isDarkMode;
   set isDarkMode(bool value) {

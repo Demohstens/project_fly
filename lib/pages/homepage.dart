@@ -40,7 +40,7 @@ class FlyNavBar extends StatelessWidget {
     return Scaffold(
       drawer: FlyDrawer(),
       persistentFooterAlignment: AlignmentDirectional.centerStart,
-      persistentFooterButtons: [CurrentlyPlayingIsland()],
+      persistentFooterButtons: const [CurrentlyPlayingIsland()],
       appBar: AppBar(
         centerTitle: true,
         title: TextButton(
@@ -48,7 +48,7 @@ class FlyNavBar extends StatelessWidget {
             musicLibrary
                 .updateSongList(context.read<Settings>().musicDirectory);
           },
-          child: Text("Project Fly"),
+          child: const Text("Project Fly"),
         ),
       ),
       bottomNavigationBar: NavigationBar(
