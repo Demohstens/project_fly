@@ -1,15 +1,14 @@
-import 'package:audioplayers/audioplayers.dart';
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:project_fly/components/progress_slider.dart';
 import 'package:project_fly/main.dart';
-import 'package:project_fly/models/player.dart';
 import 'package:project_fly/models/song.dart';
 import 'package:sizer/sizer.dart';
-import 'package:provider/provider.dart';
 import 'package:aura_box/aura_box.dart';
 
 class SongPage extends StatefulWidget {
-  final Song song;
+  final RenderedSong song;
   SongPage({required this.song});
 
   @override
@@ -17,6 +16,22 @@ class SongPage extends StatefulWidget {
 }
 
 class _SongPageState extends State<SongPage> {
+  StreamSubscription? stateListener;
+  @override
+  void initState() {
+    stateListener = audioHandler.playbackState.listen((state) {
+      setState(() {});
+    });
+    // TODO: implement initState
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    stateListener?.cancel();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -78,7 +93,7 @@ class _SongPageState extends State<SongPage> {
 
 class ButtonRow extends StatelessWidget {
   ButtonRow({required this.song});
-  final Song song;
+  final RenderedSong song;
   final FocusNode childFocusNode = FocusNode();
   final MenuController menuController = MenuController();
   @override
@@ -88,7 +103,11 @@ class ButtonRow extends StatelessWidget {
             child: ProgressSlider(),
           ),
           Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
-            const Icon(Icons.favorite),
+            IconButton(
+                onPressed: () {
+                  userData.likedSongs.add(song.id);
+                },
+                icon: const Icon(Icons.favorite)),
             const Icon(Icons.skip_previous),
             // IconButton(onPressed: () {}, ),
             MenuAnchor(
@@ -99,11 +118,9 @@ class ButtonRow extends StatelessWidget {
                     child: RotatedBox(
                       quarterTurns: 3,
                       child: Slider(
-                          value: context.watch<FlyAudioHandler>().volume,
+                          value: 00,
                           onChanged: (newVolumte) {
-                            context
-                                .read<FlyAudioHandler>()
-                                .changeVolume(newVolumte);
+                            audioHandler.setVolume(newVolumte);
                           }),
                     ),
                     onPressed: () {
@@ -145,19 +162,16 @@ class ButtonRow extends StatelessWidget {
             ),
             // Play button
             IconButton(
-                onPressed: () {
-                  context
-                      .read<FlyAudioHandler>()
-                      .setSource(song.source); // TODO: Fix this
-                  audioHandler.togglePlaying();
-                },
-                icon: context.watch<FlyAudioHandler>().isPlaying
-                    ? Icon(Icons.pause)
-                    : Icon(Icons.play_arrow)),
+              onPressed: () {
+                audioHandler.togglePlaying();
+              },
+              icon: audioHandler.playbackState.value.playing
+                  ? Icon(Icons.pause)
+                  : Icon(Icons.play_arrow),
+            ),
             IconButton(
-                onPressed: () => context
-                    .read<FlyAudioHandler>()
-                    .setSource(AssetSource("error.mp3")),
+                onPressed: () {},
+                // context.read<FlyAudioHandler>().playErrorSound(),
                 icon: Icon(Icons.skip_next)),
             const Icon(Icons.playlist_add),
           ]),
@@ -166,7 +180,8 @@ class ButtonRow extends StatelessWidget {
 }
 
 Icon getVolumeIcon(BuildContext context) {
-  final volume = context.watch<FlyAudioHandler>().volume;
+  final volume = 0.0;
+  // audioHandler.;
   if (volume == 0) {
     return Icon(Icons.volume_off);
   } else if (volume < 0.5) {

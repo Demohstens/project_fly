@@ -1,20 +1,28 @@
+import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
-import 'package:project_fly/models/player.dart';
+import 'package:project_fly/main.dart';
 import 'package:project_fly/models/song.dart';
-import 'package:provider/provider.dart';
 
-class SongListitem extends StatelessWidget {
-  final Song song;
+class SongListitem extends StatefulWidget {
+  final MediaItem song;
   SongListitem({required this.song});
+
+  @override
+  _SongListitemState createState() => _SongListitemState();
+}
+
+class _SongListitemState extends State<SongListitem> {
+  late RenderedSong renderedSong = RenderedSong.fromMediaItem(widget.song);
+
   @override
   Widget build(BuildContext context) {
     return ListTile(
       onTap: () {
-        context.read<FlyAudioHandler>().playSong(song);
+        audioHandler.playMediaItem(widget.song);
       },
-      title: Text(song.title),
-      subtitle: Text(song.artist ?? ""),
-      leading: song.albumArt,
+      title: Text(renderedSong.title),
+      subtitle: Text(renderedSong.artist ?? ""),
+      leading: renderedSong.albumArt,
       trailing: const Icon(Icons.more_vert),
     );
   }

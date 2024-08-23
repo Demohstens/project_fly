@@ -1,8 +1,11 @@
+import 'dart:developer';
+
+import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
 import 'package:project_fly/components/song_list_item.dart';
-import 'package:project_fly/models/player.dart';
-import 'package:project_fly/models/settings.dart';
-import 'package:project_fly/models/song.dart';
+import 'package:project_fly/main.dart';
+import 'package:project_fly/providers/settings.dart';
+import 'package:project_fly/utils/update_songs.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
 
@@ -16,19 +19,17 @@ class HomeSubPage extends StatelessWidget {
 }
 
 class ListOfSongs extends StatelessWidget {
-  final List<Song>? songs;
-  const ListOfSongs({this.songs, Key? super.key});
+  const ListOfSongs({Key? super.key});
 
   @override
   Widget build(BuildContext context) {
-    List<Song> songs = context.watch<FlyAudioHandler>().songs;
-    final favoriteCards = context.read<Settings>().favoriteCards;
+    log("Building ListOfSongs");
+    List<MediaItem> songs = musicLibrary.songs;
+    final favoriteCards = context.watch<Settings>().favoriteCards;
 
     return RefreshIndicator(
       onRefresh: () async {
-        return context
-            .read<FlyAudioHandler>()
-            .updateSongList(context.read<Settings>().musicDirectory);
+        return updateSongList(context.read<Settings>().musicDirectory);
       },
       child: CustomScrollView(slivers: [
         if (favoriteCards.isNotEmpty)
@@ -100,8 +101,7 @@ class ListOfSongs extends StatelessWidget {
                 ),
               );
             } else {
-              Song song = songs[index];
-              return SongListitem(song: song);
+              return SongListitem(song: songs[index]);
             }
           },
         ),

@@ -3,8 +3,10 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
-  audioplayers_windows
   audiotags
+  cloud_firestore
+  firebase_core
+  just_audio_windows
   permission_handler_windows
 )
 

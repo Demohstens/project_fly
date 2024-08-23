@@ -41,5 +41,12 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+<<<<<<< HEAD
 /lib/firebase_options.dart
 /firebase.json
+=======
+/.vscode
+/lib/firebase_options.dart
+/firebase.json
+/android/app/google-services.json
+>>>>>>> c5e4e4090c09d2ee4e801ec9ecf44c61770613a8
