@@ -1,7 +1,6 @@
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
 import 'package:project_fly/providers/android_audio_handler.dart';
-import 'package:project_fly/providers/library.dart';
 import 'package:project_fly/providers/page_provider.dart';
 import 'package:project_fly/providers/settings.dart' as settings;
 import 'package:project_fly/pages/homepage.dart';
@@ -10,7 +9,6 @@ import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
 
 late AndroidAudioHandler audioHandler;
-MusicLibrary musicLibrary = MusicLibrary();
 UserData userData = UserData();
 // late FirebaseFirestore db;
 // late User? user;

@@ -19,6 +19,14 @@ class UserData {
     loadData();
   }
 
+  void addSong(MediaItem song) {
+    songs.add(song);
+  }
+
+  MediaItem findSongById(String id) {
+    return songs.firstWhere((element) => element.id == id);
+  }
+
   // createSongPaths(List<MediaItem> songs) {
   //   for (var song in songs) {
   //     songData[song.id] = song.extras!['path']!;

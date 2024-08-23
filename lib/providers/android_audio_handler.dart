@@ -11,8 +11,6 @@ class AndroidAudioHandler extends BaseAudioHandler {
 
   final _player = AudioPlayer();
 
-  bool _wantingToPlay = false;
-
   int queueIndex = 0;
 
   BehaviorSubject<RenderedSong?> currentSong = BehaviorSubject.seeded(null);
@@ -90,8 +88,10 @@ class AndroidAudioHandler extends BaseAudioHandler {
 
   @override
   Future<void> play() async {
+    // Wait for the player to be ready. This is arbitrary.
+    // However an await on setAudioSource does not work.
     await Future.delayed(
-        const Duration(milliseconds: 50)); // Adjust delay as needed
+        const Duration(milliseconds: 100)); // Adjust delay as needed
 
     _player.play();
     playbackState.add(playbackState.value.copyWith(
@@ -171,7 +171,7 @@ class AndroidAudioHandler extends BaseAudioHandler {
   /* Methods Responsible for managing the Queue */
 
   void generateQueue() {
-    queue.add(musicLibrary.songs.sublist(1, musicLibrary.songs.length));
+    queue.add(userData.songs.sublist(1, userData.songs.length));
   }
 
   @override

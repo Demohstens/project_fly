@@ -27,7 +27,7 @@ Future<void> depthSearchFolder(Directory dir,
       if (ext == 'mp3' || ext == 'm4a' || ext == 'flac' || ext == 'mp4') {
         MediaItem? song = await songFromFile(entity);
         if (song != null) {
-          musicLibrary.addSong(song);
+          userData.addSong(song);
 
           outputList?.add(song);
         }

@@ -1,4 +1,7 @@
+import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
+import 'package:project_fly/components/song_list_item.dart';
+import 'package:project_fly/main.dart';
 
 class QueuePage extends StatelessWidget {
   const QueuePage({super.key});
@@ -8,8 +11,8 @@ class QueuePage extends StatelessWidget {
     // List<MediaItem> queue = context.watch<FlyAudioHandler>().queue.value;
 
     return ListView(
-      children: const <Widget>[
-        Text(
+      children: <Widget>[
+        const Text(
           "Queue",
           textAlign: TextAlign.center,
           style: TextStyle(
@@ -18,7 +21,8 @@ class QueuePage extends StatelessWidget {
           ),
         ),
         Divider(),
-        // for (MediaItem song in queue) SongListitem(song: song)
+        for (MediaItem song in audioHandler.queue.value)
+          SongListitem(song: song)
       ],
     );
   }

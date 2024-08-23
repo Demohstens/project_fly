@@ -2,13 +2,12 @@ import 'dart:developer' as dev;
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
-import 'package:project_fly/providers/library.dart';
+import 'package:project_fly/main.dart';
 import 'package:project_fly/models/song.dart';
 import 'package:rxdart/src/subjects/behavior_subject.dart';
 
 class FlyAudioHandler extends BaseAudioHandler
     with QueueHandler, SeekHandler, ChangeNotifier {
-  final MusicLibrary musicLibrary;
   final _player = AudioPlayer();
   double _volume = 0.07;
   double playbackSpeed = 1.0;
@@ -22,7 +21,7 @@ class FlyAudioHandler extends BaseAudioHandler
   BehaviorSubject<PlaybackState> get playbackState => _playbackStateSubject;
 
   @override
-  FlyAudioHandler({required this.musicLibrary}) {
+  FlyAudioHandler() {
     _player.setVolume(volume);
     _player.positionStream.listen((event) {
       _currentDuration = event;
@@ -90,7 +89,7 @@ class FlyAudioHandler extends BaseAudioHandler
     // TODO: implement playFromMediaId
 
     // 1. Find the song in your song library
-    MediaItem? song = musicLibrary.findSongById(
+    MediaItem? song = userData.findSongById(
         mediaId); // Assuming you have a musicLibrary instance available
 
     RenderedSong renderedSong = RenderedSong.fromMediaItem(song);
@@ -108,7 +107,7 @@ class FlyAudioHandler extends BaseAudioHandler
       playing: true,
     )); // Assuming playbackState is a BehaviorSubject
     // Update the queue and queueIndex
-    List<MediaItem> queueItems = musicLibrary.songs;
+    List<MediaItem> queueItems = userData.songs;
     await addQueueItems(queueItems);
     playbackState.add(playbackState.value.copyWith(
       queueIndex: 0, // Set the initial queueIndex to 0
@@ -133,7 +132,7 @@ class FlyAudioHandler extends BaseAudioHandler
       processingState: AudioProcessingState.ready,
       playing: true,
     )); // Assuming playbackState is a BehaviorSubject
-    List<MediaItem> queueItems = musicLibrary.songs;
+    List<MediaItem> queueItems = userData.songs;
     await addQueueItems(queueItems);
     playbackState.add(playbackState.value.copyWith(
       queueIndex: 0, // Set the initial queueIndex to 0
@@ -154,7 +153,7 @@ class FlyAudioHandler extends BaseAudioHandler
       await _player.play();
       playbackState.add(PlaybackState(playing: true));
 
-      List<MediaItem> queueItems = musicLibrary.songs;
+      List<MediaItem> queueItems = userData.songs;
       await addQueueItems(queueItems);
       notifyListeners();
     } else {

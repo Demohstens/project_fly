@@ -24,7 +24,7 @@ class ListOfSongs extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     log("Building ListOfSongs");
-    List<MediaItem> songs = musicLibrary.songs;
+    List<MediaItem> songs = userData.songs;
     final favoriteCards = context.watch<Settings>().favoriteCards;
 
     return RefreshIndicator(
