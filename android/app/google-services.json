@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "969363759982",
+    "project_id": "fly-music-flutter",
+    "storage_bucket": "fly-music-flutter.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:969363759982:android:92cec9f19b3eecad82d77f",
+        "android_client_info": {
+          "package_name": "com.demosoftworks.fly.fly"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDm1xE4K93KoUgDyfUiBm12F1rCGU1NNYY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
