@@ -37,8 +37,8 @@ dependencies:
   provider: ^6.1.2
   sizer: ^3.0.3
 
-  audioplayers: any
-  audioplayers_windows: any
+  # audioplayers: any
+  # audioplayers_windows: any
   audio_service: ^0.18.15
   file_picker: any
   aura_box: ^1.0.2
@@ -47,6 +47,13 @@ dependencies:
   permission_handler: ^11.3.1
   shared_preferences: ^2.3.2
   audiotags: ^1.4.1
+  firebase_database: ^10.4.0
+  firebase_core: ^2.24.2
+  cloud_firestore: ^4.14.0
+  uuid: ^4.4.2
+  just_audio: ^0.9.37
+  just_audio_windows: ^0.2.1
+  rxdart: ^0.28.0
 
 dev_dependencies:
   flutter_test:
@@ -69,8 +76,5 @@ flutter:
   # the material Icons class.
   uses-material-design: true
   assets:
-    - assets/images/positive_thinking.jpg
-    - assets/positive_thinking.wav
     - assets/error.mp3
     - assets/images/placeholder_album_art.png
-    - assets/Bubblegum KK short.mp3

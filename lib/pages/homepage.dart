@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:project_fly/components/currently_playing_island.dart';
 import 'package:project_fly/components/fly_drawer.dart';
-import 'package:project_fly/components/home_subpage.dart';
-import 'package:project_fly/models/player.dart';
-import 'package:project_fly/models/settings.dart';
+import 'package:project_fly/main.dart';
+import 'package:project_fly/providers/page_provider.dart';
+import 'package:project_fly/providers/settings.dart';
+import 'package:project_fly/utils/update_songs.dart';
 import 'package:provider/provider.dart';
 
 class HomePage extends StatefulWidget {
@@ -15,54 +16,45 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   @override
-  Widget build(BuildContext context) {
-    @override
-    void initState() {
-      super.initState();
-      context
-          .read<FlyAudioHandler>()
-          .updateSongList(context.read<Settings>().musicDirectory);
-    }
-
-    return FlyNavBar();
+  void initState() {
+    super.initState();
+    // context
+    // .read<MusicLibrary>()
+    // .updateSongList(context.read<Settings>().musicDirectory);
   }
-}
 
-//  SongComponent(song: SampleSong())
+  Widget? homeScaffoldBody;
 
-class FlyNavBar extends StatefulWidget {
-  const FlyNavBar({super.key});
-
-  @override
-  State<FlyNavBar> createState() => _FlyNavBarState();
-}
-
-class _FlyNavBarState extends State<FlyNavBar> {
-  int currentPageIndex = 0;
+  void updatePage() {
+    context.read<PageProvider>().rebuildPages();
+    setState(() {
+      homeScaffoldBody = context.read<PageProvider>().pages[0];
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
+    Widget? homeScaffoldBody = context.watch<PageProvider>().currentPage ??
+        context.read<PageProvider>().pages[0];
+
     return Scaffold(
       drawer: FlyDrawer(),
       persistentFooterAlignment: AlignmentDirectional.centerStart,
-      persistentFooterButtons: [CurrentlyPlayingIsland()],
+      persistentFooterButtons: const [CurrentlyPlayingIsland()],
       appBar: AppBar(
         centerTitle: true,
         title: TextButton(
           onPressed: () {
-            context
-                .read<FlyAudioHandler>()
-                .updateSongList(context.read<Settings>().musicDirectory);
+            updatePage();
+            updateSongList(context.read<Settings>().musicDirectory);
           },
-          child: Text("Project Fly"),
+          child: const Text("Project Fly"),
         ),
       ),
       bottomNavigationBar: NavigationBar(
-        selectedIndex: currentPageIndex,
+        selectedIndex: context.watch<PageProvider>().currentPageIndex,
         onDestinationSelected: (int index) {
-          setState(() {
-            currentPageIndex = index;
-          });
+          context.read<PageProvider>().setToOriginalIndex(index);
         },
         destinations: const <Widget>[
           NavigationDestination(
@@ -79,19 +71,7 @@ class _FlyNavBarState extends State<FlyNavBar> {
           ),
         ],
       ),
-      body: pages[currentPageIndex],
+      body: homeScaffoldBody,
     );
   }
 }
-
-List<Widget> pages = <Widget>[
-  Container(
-    child: HomeSubPage(),
-  ),
-  Container(
-    child: const Text('Search'),
-  ),
-  Container(
-    child: const Text('Library'),
-  ),
-];
