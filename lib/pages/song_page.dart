@@ -103,7 +103,11 @@ class ButtonRow extends StatelessWidget {
             child: ProgressSlider(),
           ),
           Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
-            const Icon(Icons.favorite),
+            IconButton(
+                onPressed: () {
+                  userData.likedSongs.add(song.id);
+                },
+                icon: const Icon(Icons.favorite)),
             const Icon(Icons.skip_previous),
             // IconButton(onPressed: () {}, ),
             MenuAnchor(

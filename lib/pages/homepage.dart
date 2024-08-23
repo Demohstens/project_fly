@@ -4,6 +4,7 @@ import 'package:project_fly/components/fly_drawer.dart';
 import 'package:project_fly/main.dart';
 import 'package:project_fly/providers/page_provider.dart';
 import 'package:project_fly/providers/settings.dart';
+import 'package:project_fly/utils/update_songs.dart';
 import 'package:provider/provider.dart';
 
 class HomePage extends StatefulWidget {
@@ -45,8 +46,7 @@ class _HomePageState extends State<HomePage> {
         title: TextButton(
           onPressed: () {
             updatePage();
-            musicLibrary
-                .updateSongList(context.read<Settings>().musicDirectory);
+            updateSongList(context.read<Settings>().musicDirectory);
           },
           child: const Text("Project Fly"),
         ),

@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:project_fly/components/song_list_item.dart';
 import 'package:project_fly/main.dart';
 import 'package:project_fly/providers/settings.dart';
+import 'package:project_fly/utils/update_songs.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
 
@@ -28,8 +29,7 @@ class ListOfSongs extends StatelessWidget {
 
     return RefreshIndicator(
       onRefresh: () async {
-        return musicLibrary
-            .updateSongList(context.read<Settings>().musicDirectory);
+        return updateSongList(context.read<Settings>().musicDirectory);
       },
       child: CustomScrollView(slivers: [
         if (favoriteCards.isNotEmpty)
