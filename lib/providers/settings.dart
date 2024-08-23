@@ -1,26 +1,36 @@
+import 'dart:developer';
 import 'dart:io';
 
+import 'package:audio_service/audio_service.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:project_fly/components/favorite_cards.dart';
+import 'package:project_fly/main.dart';
+import 'package:project_fly/models/song.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Settings extends ChangeNotifier {
   // * SHARED PREFERENCES * //
   late SharedPreferences _settings;
+
   Settings() {
     SharedPreferences.getInstance().then((value) {
       _settings = value;
       _isDarkMode = _settings.getBool("isDarkMode") ?? false;
-      var _musicDirStr = _settings.getString("musicDirectory");
-      _musicDirectory = _musicDirStr != null ? Directory(_musicDirStr) : null;
+      _musicDirectories = _settings.getStringList("musicDirectories")?.map((e) {
+            return Directory(e);
+          }).toList() ??
+          [];
+
       // _favoriteCard
       notifyListeners();
     });
   }
 
+  // * SETTINGS * //
+  List<Directory> _musicDirectories = [];
   bool _isDarkMode = false;
   final List<Widget> _favoriteCards = [
     const FavoriteCard(typeOfCard: FavoriteCards.currentSong),
@@ -28,7 +38,14 @@ class Settings extends ChangeNotifier {
     const FavoriteCard(typeOfCard: FavoriteCards.playlists),
     const FavoriteCard(typeOfCard: FavoriteCards.settings),
   ];
+
+  // * GETTERS AND SETTERS * //
   bool get isDarkMode => _isDarkMode;
+
+  List get favoriteCards => _favoriteCards;
+  // Directory? get musicDirectory => _musicDirectory;
+  List<Directory> get musicDirectories => _musicDirectories;
+
   set isDarkMode(bool value) {
     _isDarkMode = value;
     _settings.setBool("isDarkMode", _isDarkMode);
@@ -41,18 +58,72 @@ class Settings extends ChangeNotifier {
     notifyListeners();
   }
 
-  List<Directory> _musicDirectories = [];
-  Directory? _musicDirectory;
-
-  List get favoriteCards => _favoriteCards;
-  Directory? get musicDirectory => _musicDirectory;
-  List get musicDirectories => _musicDirectories;
-
-  void setMusicDirectory(Directory? directory) async {
-    _musicDirectory = directory ?? await getApplicationDocumentsDirectory();
-    print("Music dir set to: $directory");
-    _settings.setString("musicDirectory", _musicDirectory!.path);
+  void removeDirectory(Directory dir) {
+    _musicDirectories.remove(dir);
+    _settings.setStringList(
+        "musicDirectories", _musicDirectories.map((e) => e.path).toList());
     notifyListeners();
+  }
+
+  void addMusicDirectory(Directory? directory) async {
+    Directory _musicDirectory =
+        directory ?? await getApplicationDocumentsDirectory();
+    _musicDirectories.add(_musicDirectory);
+    _settings.setStringList(
+        "musicDirectories", _musicDirectories.map((e) => e.path).toList());
+    notifyListeners();
+  }
+
+  void updateSongList() {
+    List<List<MediaItem>> _dirsSongsTemp = [];
+    for (Directory dir in _musicDirectories) {
+      List<MediaItem> _songsTemp = [];
+      if (dir == null) {
+        log("Cant update song list, dir is null");
+        return;
+      }
+      depthSearchFolder(dir, outputList: _songsTemp);
+      _dirsSongsTemp.add(_songsTemp);
+    }
+    userData.songs = _dirsSongsTemp.expand((element) => element).toList();
+
+    userData.saveData();
+  }
+
+  Future<void> depthSearchFolder(Directory dir,
+      {List<MediaItem>? outputList}) async {
+    log("Searching folder: ${dir.path}");
+    await for (FileSystemEntity entity
+        in dir.list(recursive: true, followLinks: false)) {
+      if (entity is File) {
+        String ext = entity.path.split('.').last;
+        if (ext == 'mp3' || ext == 'm4a' || ext == 'flac' || ext == 'mp4') {
+          MediaItem? song = await songFromFile(entity);
+          if (song != null) {
+            userData.addSong(song);
+
+            outputList?.add(song);
+          }
+        } else {}
+      } else if (entity is Directory) {
+        // Optional: Uncomment if you want to recurse into directories as they are found
+        // await depthSearchFolder(entity);
+      }
+    }
+  }
+
+  void addDirectory(Directory dir) {
+    _musicDirectories.add(dir);
+    notifyListeners();
+  }
+
+  bool directoryInListOfDirectories(Directory dir) {
+    for (Directory d in _musicDirectories) {
+      if (d.path == dir.path) {
+        return true;
+      }
+    }
+    return false;
   }
 }
 

@@ -118,7 +118,7 @@ class ButtonRow extends StatelessWidget {
                     child: RotatedBox(
                       quarterTurns: 3,
                       child: Slider(
-                          value: 00,
+                          value: audioHandler.player.volume,
                           onChanged: (newVolumte) {
                             audioHandler.setVolume(newVolumte);
                           }),
