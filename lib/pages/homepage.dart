@@ -15,22 +15,21 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   @override
-  Widget build(BuildContext context) {
-    @override
-    void initState() {
-      super.initState();
-      // context
-      // .read<MusicLibrary>()
-      // .updateSongList(context.read<Settings>().musicDirectory);
-    }
-
-    return FlyNavBar();
+  void initState() {
+    super.initState();
+    // context
+    // .read<MusicLibrary>()
+    // .updateSongList(context.read<Settings>().musicDirectory);
   }
-}
 
-//  SongComponent(song: SampleSong())
-class FlyNavBar extends StatelessWidget {
-  FlyNavBar({super.key});
+  Widget? homeScaffoldBody;
+
+  void updatePage() {
+    context.read<PageProvider>().rebuildPages();
+    setState(() {
+      homeScaffoldBody = context.read<PageProvider>().pages[0];
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -45,6 +44,7 @@ class FlyNavBar extends StatelessWidget {
         centerTitle: true,
         title: TextButton(
           onPressed: () {
+            updatePage();
             musicLibrary
                 .updateSongList(context.read<Settings>().musicDirectory);
           },

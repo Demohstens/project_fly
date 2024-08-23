@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
 import 'package:project_fly/components/song_list_item.dart';
@@ -20,8 +22,9 @@ class ListOfSongs extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    log("Building ListOfSongs");
     List<MediaItem> songs = musicLibrary.songs;
-    final favoriteCards = context.read<Settings>().favoriteCards;
+    final favoriteCards = context.watch<Settings>().favoriteCards;
 
     return RefreshIndicator(
       onRefresh: () async {

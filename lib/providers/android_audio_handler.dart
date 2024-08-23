@@ -1,7 +1,5 @@
 import 'dart:async';
 import 'dart:developer';
-import 'dart:io';
-
 import 'package:audio_service/audio_service.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:project_fly/main.dart';
@@ -13,7 +11,7 @@ class AndroidAudioHandler extends BaseAudioHandler {
 
   final _player = AudioPlayer();
 
-  bool _readyToPlay = false;
+  bool _wantingToPlay = false;
 
   int queueIndex = 0;
 
@@ -52,11 +50,10 @@ class AndroidAudioHandler extends BaseAudioHandler {
     AudioSource source = AudioSource.file(mediaItem.extras!['path']);
 
     // Loads the audio source into the player
-    await _player.setAudioSource(source);
-    currentSong.add(RenderedSong.fromMediaItem(mediaItem));
+    _player.setAudioSource(source);
 
-    // Handles the creation of the queue
-    // TODO: Implement queue
+    play();
+    currentSong.add(RenderedSong.fromMediaItem(mediaItem));
   }
 
   @override
@@ -93,10 +90,10 @@ class AndroidAudioHandler extends BaseAudioHandler {
 
   @override
   Future<void> play() async {
-    if (_readyToPlay == false) {
-      log("Attempted to play before ready");
-      return;
-    }
+    await Future.delayed(
+        const Duration(milliseconds: 50)); // Adjust delay as needed
+
+    _player.play();
     playbackState.add(playbackState.value.copyWith(
         playing: true,
         controls: [
@@ -107,7 +104,6 @@ class AndroidAudioHandler extends BaseAudioHandler {
         processingState: AudioProcessingState.ready,
         systemActions: {MediaAction.seek}));
     generateQueue();
-    await _player.play();
   }
 
   @override
@@ -138,8 +134,11 @@ class AndroidAudioHandler extends BaseAudioHandler {
   Future<void> skipToNext() async {
     if (queueIndex + 1 >= queue.value.length) return;
     currentSong.add(RenderedSong.fromMediaItem(queue.value[queueIndex + 1]));
-    _player.setAudioSource(currentSong.value!.source);
+    _player.setAudioSource(currentSong.value!.source, preload: true);
     queueIndex++;
+    await Future.delayed(
+        const Duration(milliseconds: 200)); // Adjust delay as needed
+
     play();
   }
 
@@ -148,7 +147,7 @@ class AndroidAudioHandler extends BaseAudioHandler {
     await _player.seekToPrevious();
   }
 
-  Future<void> cycleRepeatMode() {
+  LoopMode cycleRepeatMode() {
     LoopMode nextMode;
     switch (_player.loopMode) {
       case LoopMode.off:
@@ -161,7 +160,8 @@ class AndroidAudioHandler extends BaseAudioHandler {
         nextMode = LoopMode.off;
         break;
     }
-    return setLoopMode(nextMode);
+    setLoopMode(nextMode);
+    return nextMode;
   }
 
   Future<void> setLoopMode(LoopMode repeatMode) async {
@@ -171,30 +171,12 @@ class AndroidAudioHandler extends BaseAudioHandler {
   /* Methods Responsible for managing the Queue */
 
   void generateQueue() {
-    if (!Platform.isAndroid) {
-      if (queue.value.isEmpty) {
-        addQueueItems(musicLibrary.songs);
-      }
-    } else {
-      List<AudioSource> sources = [];
-      for (MediaItem item in musicLibrary.songs) {
-        sources.add(AudioSource.file(item.extras!['path']));
-      }
-      _player.setAudioSource(ConcatenatingAudioSource(children: sources));
-    }
+    queue.add(musicLibrary.songs.sublist(1, musicLibrary.songs.length));
   }
 
   @override
   Future<void> addQueueItems(List<MediaItem> mediaItems) async {
-    if (Platform.isAndroid) {
-      List<AudioSource> sources = [];
-      for (MediaItem item in mediaItems) {
-        sources.add(AudioSource.file(item.extras!['path']));
-      }
-      await _player.setAudioSource(ConcatenatingAudioSource(children: sources));
-    } else {
-      queue.add(mediaItems);
-    }
+    queue.add(mediaItems);
   }
 
   void clearQueue() {
@@ -203,31 +185,14 @@ class AndroidAudioHandler extends BaseAudioHandler {
 
   // * LISTENERS * //
   void _registerListeners() {
-    // _player.playerStateStream.listen((event) {
-    //   if (event.playing) {
-    //     playbackState.add(playbackState.value.copyWith(playing: true));
-    //   } else {
-    //     playbackState.add(playbackState.value.copyWith(playing: false));
-    //   }
-    // });
     _player.playerStateStream.listen((event) {
-      if (event.processingState == ProcessingState.ready) {
-        if (_readyToPlay == false) {
-          log("Ready to play");
-          _readyToPlay = true;
-          play();
-        }
-      } else {
-        _readyToPlay = false;
+      if (event.processingState == ProcessingState.completed) {
+        skipToNext();
       }
     });
   }
 
-  void addPlayStateListener(Function(PlaybackState) func) {
-    playbackState.listen((event) {
-      func(event);
-    });
-  }
+  void addPlayStateListener(Function(PlaybackState) func) {}
 
   StreamSubscription addPositionListener(Function(Duration) func) {
     return _player.positionStream.listen((event) {

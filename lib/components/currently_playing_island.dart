@@ -3,6 +3,7 @@ import 'dart:developer';
 
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
+import 'package:just_audio/just_audio.dart';
 import 'package:project_fly/components/progress_slider.dart';
 import 'package:project_fly/main.dart';
 import 'package:project_fly/models/song.dart';
@@ -37,11 +38,20 @@ class _CurrentlyPlayingIslandState extends State<CurrentlyPlayingIsland> {
   late StreamSubscription _mediaItemSubscription;
   late StreamSubscription _playbackStateSubscription;
 
+  setLoopModeIcon(LoopMode lm) {
+    setState(() {
+      repeadModeIcon = lm == LoopMode.all
+          ? const Icon(Icons.repeat, color: Colors.blue)
+          : lm == LoopMode.one
+              ? const Icon(Icons.repeat_one, color: Colors.blue)
+              : const Icon(Icons.repeat);
+    });
+  }
+
   @override
   void initState() {
     _mediaItemSubscription = audioHandler.currentSong.listen((song) {
       setState(() {
-        log("MediaItem changed: $song");
         currentSong = song;
       });
     });
@@ -70,7 +80,6 @@ class _CurrentlyPlayingIslandState extends State<CurrentlyPlayingIsland> {
 
   @override
   Widget build(BuildContext context) {
-    log("Building CurrentlyPlayingIsland");
     if (currentSong == null) {
       return Container();
     } else {
@@ -139,7 +148,7 @@ class _CurrentlyPlayingIslandState extends State<CurrentlyPlayingIsland> {
                   IconButton(
                     icon: repeadModeIcon,
                     onPressed: () {
-                      // audioHandler.toggleLoopMode(); // TODO
+                      setLoopModeIcon(audioHandler.cycleRepeatMode()); // TODO
                     },
                   ),
                   IconButton(

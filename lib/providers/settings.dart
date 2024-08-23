@@ -41,10 +41,12 @@ class Settings extends ChangeNotifier {
     notifyListeners();
   }
 
+  List<Directory> _musicDirectories = [];
   Directory? _musicDirectory;
 
   List get favoriteCards => _favoriteCards;
   Directory? get musicDirectory => _musicDirectory;
+  List get musicDirectories => _musicDirectories;
 
   void setMusicDirectory(Directory? directory) async {
     _musicDirectory = directory ?? await getApplicationDocumentsDirectory();

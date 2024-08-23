@@ -7,6 +7,18 @@ class PageProvider extends ChangeNotifier {
 
   late List<Widget> pages;
 
+  void rebuildPages() {
+    pages = [
+      Container(child: const HomeSubPage()),
+      Container(
+        child: const Text('Search'),
+      ),
+      Container(
+        child: const Text('Library'),
+      )
+    ];
+  }
+
   // A backup of the pages to be used when the custom component is deactivated
   List<Widget> pagesStatic = [
     Container(child: const HomeSubPage()),
