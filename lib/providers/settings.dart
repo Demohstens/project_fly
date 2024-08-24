@@ -74,11 +74,13 @@ class Settings extends ChangeNotifier {
     notifyListeners();
   }
 
-  void updateSongList() {
+  void updateSongList() async {
     List<List<MediaItem>> _dirsSongsTemp = [];
     for (Directory dir in _musicDirectories) {
-      depthSearchFolder(dir).then((value) => _dirsSongsTemp.add(value));
+      List<MediaItem> a = await depthSearchFolder(dir);
+      _dirsSongsTemp.add(a);
     }
+    print(_dirsSongsTemp[0].length);
     userData.songs = _dirsSongsTemp.expand((element) => element).toList();
     print(userData.songs);
 
@@ -97,8 +99,6 @@ class Settings extends ChangeNotifier {
         if (ext == 'mp3' || ext == 'm4a' || ext == 'flac' || ext == 'mp4') {
           MediaItem? song = await songFromFile(entity);
           if (song != null) {
-            userData.addSong(song);
-
             outputList.add(song);
           }
         } else {}
@@ -107,6 +107,7 @@ class Settings extends ChangeNotifier {
         // await depthSearchFolder(entity);
       }
     }
+
     return outputList;
   }
 

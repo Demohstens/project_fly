@@ -83,7 +83,7 @@ class UserData {
         title: song['title'],
         artist: song['artist'],
         album: song['album'],
-        duration: Duration(seconds: song['duration']),
+        duration: Duration(seconds: int.tryParse(song['duration']) ?? 0),
         extras: <String, dynamic>{
           'path': song['path'],
         },
