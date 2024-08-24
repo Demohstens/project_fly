@@ -41,19 +41,19 @@ class AndroidAudioHandler extends BaseAudioHandler {
   // * METHODS * //
 
   /* Methods Responsible for playing audio */
+  Future<void> playRenderedSong(RenderedSong song) async {
+    currentSong.add(song);
+    _player.setAudioSource(song.source, preload: true);
+
+    play();
+    userData.addSongToHistory(song);
+  }
+
   @override
   Future<void> playMediaItem(MediaItem mediaItem) async {
     // Creates an audio source from the media item
     RenderedSong currentSongRendered = RenderedSong.fromMediaItem(mediaItem);
-    currentSong.add(currentSongRendered);
-
-    AudioSource source = AudioSource.file(mediaItem.extras!['path']);
-
-    // Loads the audio source into the player
-    _player.setAudioSource(source, preload: true);
-
-    play();
-    userData.addSongToHistory(currentSongRendered);
+    playRenderedSong(currentSongRendered);
   }
 
   @override
@@ -135,18 +135,29 @@ class AndroidAudioHandler extends BaseAudioHandler {
   @override
   Future<void> skipToNext() async {
     if (queueIndex + 1 >= queue.value.length) return;
-    currentSong.add(RenderedSong.fromMediaItem(queue.value[queueIndex + 1]));
-    _player.setAudioSource(currentSong.value!.source, preload: true);
-    queueIndex++;
-    await Future.delayed(
-        const Duration(milliseconds: 200)); // Adjust delay as needed
+    MediaItem nextSong = queue.value[queueIndex + 1];
+    playMediaItem(nextSong);
+    userData.addSongToHistory(RenderedSong.fromMediaItem(nextSong));
 
-    play();
+    queueIndex++;
   }
 
   @override
   Future<void> skipToPrevious() async {
-    await _player.seekToPrevious();
+    Duration currentPosition = _player.position;
+    if (currentPosition.inSeconds > 5) {
+      _player.seek(Duration.zero);
+      return;
+    }
+    if (queueIndex - 1 < 0) {
+      print('No previous song');
+      return;
+    }
+    MediaItem lastSong = queue.value[queueIndex - 1];
+    playMediaItem(lastSong);
+    userData.addSongToHistory(RenderedSong.fromMediaItem(lastSong));
+
+    queueIndex--;
   }
 
   LoopMode cycleRepeatMode() {
@@ -194,6 +205,12 @@ class AndroidAudioHandler extends BaseAudioHandler {
       if (event.processingState == ProcessingState.completed) {
         skipToNext();
       }
+    });
+  }
+
+  StreamSubscription addCurrentSongListener(Function(RenderedSong?) func) {
+    return currentSong.listen((event) {
+      func(event);
     });
   }
 

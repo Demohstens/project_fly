@@ -96,9 +96,7 @@ class _CurrentlyPlayingIslandState extends State<CurrentlyPlayingIsland> {
         child: GestureDetector(
           onTap: () {
             Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => SongPage(song: currentSong!)));
+                context, MaterialPageRoute(builder: (context) => SongPage()));
           },
           child: Column(children: [
             const ProgressSlider(),

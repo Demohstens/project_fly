@@ -8,19 +8,29 @@ import 'package:sizer/sizer.dart';
 import 'package:aura_box/aura_box.dart';
 
 class SongPage extends StatefulWidget {
-  final RenderedSong song;
-  SongPage({required this.song});
-
   @override
   State<StatefulWidget> createState() => _SongPageState();
 }
 
 class _SongPageState extends State<SongPage> {
+  RenderedSong song = audioHandler.currentSong.value!;
+
   StreamSubscription? stateListener;
+  StreamSubscription? songListener;
   @override
   void initState() {
     stateListener = audioHandler.playbackState.listen((state) {
       setState(() {});
+    });
+    songListener = audioHandler.addCurrentSongListener((RenderedSong? song) {
+      if (song == null) {
+        Navigator.pop(
+            context); // If the song is null, pop the page. it is no longer needed.
+      } else {
+        setState(() {
+          this.song = song;
+        });
+      }
     });
     // TODO: implement initState
     super.initState();
@@ -28,6 +38,7 @@ class _SongPageState extends State<SongPage> {
 
   @override
   void dispose() {
+    songListener?.cancel();
     stateListener?.cancel();
     super.dispose();
   }
@@ -41,10 +52,10 @@ class _SongPageState extends State<SongPage> {
                 Navigator.pop(context);
               },
               icon: Icon(Icons.arrow_back)),
-          title: Text(widget.song.title),
+          title: Text(song.title),
         ),
         bottomNavigationBar: BottomAppBar(
-          child: ButtonRow(song: widget.song),
+          child: ButtonRow(song: song),
         ),
         body: Container(
             constraints: BoxConstraints.tightFor(width: 100.w, height: 100.h),
@@ -81,9 +92,7 @@ class _SongPageState extends State<SongPage> {
                     borderRadius: BorderRadius.circular(10),
                     child: ClipRect(
                       child: SizedBox(
-                          width: 75.sp,
-                          height: 75.sp,
-                          child: widget.song.albumArt),
+                          width: 75.sp, height: 75.sp, child: song.albumArt),
                     )),
                 Container()
               ]),
@@ -91,11 +100,22 @@ class _SongPageState extends State<SongPage> {
   }
 }
 
-class ButtonRow extends StatelessWidget {
+class ButtonRow extends StatefulWidget {
   ButtonRow({required this.song});
   final RenderedSong song;
+
+  @override
+  State<StatefulWidget> createState() => _ButtonRowState(song: song);
+}
+
+class _ButtonRowState extends State<ButtonRow> {
+  RenderedSong song;
+
+  _ButtonRowState({required this.song});
+
   final FocusNode childFocusNode = FocusNode();
   final MenuController menuController = MenuController();
+
   @override
   Widget build(BuildContext context) => Column(
         children: [
@@ -105,13 +125,18 @@ class ButtonRow extends StatelessWidget {
           Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
             IconButton(
                 onPressed: () {
+                  setState(() {});
                   userData.toggleLikeId(song.id);
                 },
                 icon: userData.likedSongs.contains(song.id)
                     ? const Icon(Icons.favorite, color: Colors.redAccent)
                     : const Icon(Icons.favorite_border)),
-            const Icon(Icons.skip_previous),
-            // IconButton(onPressed: () {}, ),
+            IconButton(
+              onPressed: () {
+                audioHandler.skipToPrevious();
+              },
+              icon: const Icon(Icons.skip_previous),
+            ),
             MenuAnchor(
               childFocusNode: childFocusNode,
               controller: menuController,
@@ -122,7 +147,9 @@ class ButtonRow extends StatelessWidget {
                       child: Slider(
                           value: audioHandler.player.volume,
                           onChanged: (newVolumte) {
-                            audioHandler.setVolume(newVolumte);
+                            setState(() {
+                              audioHandler.setVolume(newVolumte);
+                            });
                           }),
                     ),
                     onPressed: () {
@@ -138,7 +165,7 @@ class ButtonRow extends StatelessWidget {
                       menuController.open();
                     }
                   },
-                  icon: getVolumeIcon(context)),
+                  icon: getVolumeIcon(audioHandler.player.volume)),
             ),
             // Song info
             Expanded(
@@ -172,8 +199,9 @@ class ButtonRow extends StatelessWidget {
                   : Icon(Icons.play_arrow),
             ),
             IconButton(
-                onPressed: () {},
-                // context.read<FlyAudioHandler>().playErrorSound(),
+                onPressed: () {
+                  audioHandler.skipToNext();
+                },
                 icon: Icon(Icons.skip_next)),
             const Icon(Icons.playlist_add),
           ]),
@@ -181,8 +209,7 @@ class ButtonRow extends StatelessWidget {
       );
 }
 
-Icon getVolumeIcon(BuildContext context) {
-  final volume = 0.0;
+Icon getVolumeIcon(double volume) {
   // audioHandler.;
   if (volume == 0) {
     return Icon(Icons.volume_off);

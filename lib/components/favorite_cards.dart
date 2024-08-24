@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:project_fly/pages/subpages/favorite_songs_subpage.dart';
 import 'package:project_fly/pages/subpages/history_subpage.dart';
 import 'package:project_fly/pages/subpages/queue.dart';
 import 'package:project_fly/providers/page_provider.dart';
@@ -100,7 +101,11 @@ class FavoriteSongsCard extends StatelessWidget {
     return ShortcutCard(
         icon: const Icon(Icons.favorite),
         text: "Favorites",
-        onTap: () {},
+        onTap: () {
+          context
+              .read<PageProvider>()
+              .setToCustomPage(const FavoriteSongsSubpage()); // TODO: Fix this
+        },
         color: Colors.redAccent);
   }
 }

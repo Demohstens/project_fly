@@ -47,7 +47,9 @@ class Fly extends StatelessWidget {
             return MaterialApp(
               title: 'Fly - Music Player',
               theme: ThemeData(
-                colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+                colorScheme: context.watch<settings.Settings>().isDarkMode
+                    ? darkColorScheme
+                    : colorScheme,
                 useMaterial3: true,
               ),
               darkTheme: ThemeData.dark(
@@ -63,6 +65,59 @@ class Fly extends StatelessWidget {
   }
 }
 
+const textColor = Color(0xFF000000);
+const backgroundColor = Color.fromARGB(255, 255, 255, 255);
+const primaryColor = Color(0xFFa895fc);
+const primaryFgColor = Color(0xFF000000);
+const secondaryColor = Color(0xFF272644);
+const secondaryFgColor = Color(0xFFe0e0e0);
+const accentColor = Color(0xFFfd8b8b);
+const accentFgColor = Color(0xFF000000);
+
+const colorScheme = ColorScheme(
+  brightness: Brightness.light,
+  primary: primaryColor,
+  onPrimary: primaryFgColor,
+  secondary: secondaryColor,
+  onSecondary: secondaryFgColor,
+  tertiary: accentColor,
+  onTertiary: accentFgColor,
+  surface: backgroundColor,
+  onSurface: textColor,
+  error: Brightness.light == Brightness.light
+      ? Color(0xffB3261E)
+      : Color(0xffF2B8B5),
+  onError: Brightness.light == Brightness.light
+      ? Color(0xffFFFFFF)
+      : Color(0xff601410),
+);
+
+const darkTextColor = Color(0xFFffffff);
+const darkBackgroundColor = Color(0xFF1f1f1f);
+const darkPrimaryColor = Color(0xFF160368);
+const darkPrimaryFgColor = Color(0xFFffffff);
+const darkSecondaryColor = Color(0xFFbbbad8);
+const darkSecondaryFgColor = Color(0xFF1f1f1f);
+const darkAccentColor = Color(0xFF740202);
+const dakrAccentFgColor = Color(0xFFffffff);
+
+const darkColorScheme = ColorScheme(
+  brightness: Brightness.dark,
+  primary: darkPrimaryColor,
+  onPrimary: darkPrimaryFgColor,
+  secondary: darkSecondaryColor,
+  onSecondary: darkSecondaryFgColor,
+  tertiary: darkAccentColor,
+  onTertiary: dakrAccentFgColor,
+  surface: darkBackgroundColor,
+  onSurface: darkTextColor,
+  error: Brightness.dark == Brightness.light
+      ? Color(0xffB3261E)
+      : Color(0xffF2B8B5),
+  onError: Brightness.dark == Brightness.light
+      ? Color(0xffFFFFFF)
+      : Color(0xff601410),
+);
 // Future<User?> getUser() async {
 //   return await SharedPreferences.getInstance().then((value) async {
 //     var id = value.getString("user_id");

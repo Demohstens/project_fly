@@ -37,7 +37,7 @@ class Settings extends ChangeNotifier {
     const FavoriteCard(typeOfCard: FavoriteCards.history),
     const FavoriteCard(typeOfCard: FavoriteCards.queue),
     const FavoriteCard(typeOfCard: FavoriteCards.playlists),
-    const FavoriteCard(typeOfCard: FavoriteCards.settings),
+    const FavoriteCard(typeOfCard: FavoriteCards.favoriteSongs),
   ];
 
   // * GETTERS AND SETTERS * //

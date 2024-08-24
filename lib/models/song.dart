@@ -113,7 +113,6 @@ class RenderedSong {
 
   factory RenderedSong.fromMediaItem(MediaItem item) {
     String path = item.extras!['path'] as String;
-
     return RenderedSong(
       id: item.id,
       path: path,
