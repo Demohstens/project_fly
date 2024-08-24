@@ -1,5 +1,6 @@
-import 'dart:developer';
+import 'dart:developer' as dev;
 import 'dart:io';
+import 'dart:math';
 
 import 'package:audio_service/audio_service.dart';
 import 'package:audiotags/audiotags.dart';
@@ -78,18 +79,8 @@ class Settings extends ChangeNotifier {
   }
 
   void updateSongList() async {
+    DateTime _perf1 = DateTime.now();
     List<Map<String, dynamic>> _songList = [];
-    //  = songs
-    //     .map((e) => <String, dynamic>{
-    //           'id': e.id,
-    //           'title': e.title,
-    //           'artist': e.artist,
-    //           'album': e.album,
-    //           'duration': e.duration?.inMilliseconds.toString(),
-    //           'path': e.extras!['path'].toString()
-    //         })
-    //     .toList();
-    List<Map<String, dynamic>> _dirSongSubList = [];
     for (Directory dir in _musicDirectories) {
       List<Map<String, dynamic>> a = await depthSearchFolder(dir);
       _songList.addAll(a);
@@ -98,13 +89,15 @@ class Settings extends ChangeNotifier {
     userData.songs = _songList;
 
     userData.saveData();
+    DateTime _perf2 = DateTime.now();
+    dev.log('Data updated in ${_perf2.difference(_perf1).inMilliseconds}ms');
   }
 
   Future<List<Map<String, dynamic>>> depthSearchFolder(
     Directory dir,
   ) async {
     List<Map<String, dynamic>> outputList = [];
-    log("Searching folder: ${dir.path}");
+    dev.log("Searching folder: ${dir.path}");
     await for (FileSystemEntity entity
         in dir.list(recursive: true, followLinks: false)) {
       if (entity is File) {
@@ -115,26 +108,48 @@ class Settings extends ChangeNotifier {
               Tag? metadata = await AudioTags.read(entity.path);
               outputList.add({
                 'id': const Uuid().v4(),
-                'title': metadata?.title ??
-                    basenameWithoutExtension(entity.path)
-                        .split("-")
-                        .first
-                        .trim(),
+                'title': metadata?.title ?? parseFileNameIntiTitle(entity.path),
                 'artist': metadata?.trackArtist ??
-                    basenameWithoutExtension(entity.path)
-                        .split("-")
-                        .last
-                        .trim(),
+                    parseFileNameIntoArtist(entity.path),
                 'album': metadata?.album,
-                'duration': metadata?.duration?.toString(),
+                'duration': (metadata?.duration != null
+                        ? metadata!.duration! * 1000
+                        : 0)
+                    .toString(),
                 'path': entity.path,
               });
             } catch (e) {
-              log("CANNOT LOAD METADATA $e");
+              dev.log("CANNOT LOAD METADATA $e");
               continue;
             }
           } else {
-            log("file Already on record ${entity.path}");
+            Map<String, dynamic> songData =
+                userData.getSongDataFromPath(entity.path);
+            // Ensure that the file still exists AND that the file is the same
+            File f = File(songData['path']);
+            Map<String, dynamic> newSongData = songData;
+            if (f.existsSync()) {
+              try {
+                Tag? metadata = await AudioTags.read(entity.path);
+                Map<String, dynamic> newSongData = {
+                  'id': songData['id'],
+                  'title': metadata?.title ?? songData['title'],
+                  'artist': metadata?.trackArtist ?? songData['artist'],
+                  'album': metadata?.album ?? songData['album'],
+                  'duration': (metadata?.duration != null
+                          ? metadata!.duration! * 1000
+                          : songData['duration'])
+                      .toString(),
+                  'path': entity.path,
+                };
+              } catch (e) {
+                dev.log("CANNOT LOAD METADATA $e");
+                continue;
+              }
+
+              outputList.add(newSongData);
+            }
+// File already exists in the song list
           }
         } else if (entity is Directory) {
           // Optional: Uncomment if you want to recurse into directories as they are found
@@ -160,6 +175,13 @@ class Settings extends ChangeNotifier {
     }
     return false;
   }
+
+  void clearData() {
+    _settings.clear();
+    _musicDirectories = [];
+    userData.clearData();
+    notifyListeners();
+  }
 }
 
 Future<Directory?> selectMusicFolder() async {
@@ -171,4 +193,17 @@ Future<Directory?> selectMusicFolder() async {
 
   dirPath != null ? dir = Directory(dirPath).absolute : dir = null;
   return dir;
+}
+
+String parseFileNameIntiTitle(String path) {
+  RegExp regExp = RegExp(r"(?: - | by )");
+  String fileName = basenameWithoutExtension(path);
+  return fileName.split(regExp).first;
+}
+
+String parseFileNameIntoArtist(String path) {
+  RegExp regExp = RegExp(r"(?: - | by )");
+  String fileName = basenameWithoutExtension(path);
+  List<String> results = fileName.split(regExp);
+  return results.length > 1 ? results[1] : "";
 }

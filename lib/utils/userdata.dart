@@ -54,6 +54,10 @@ class UserData {
   //     songData[song.id] = song.extras!['path']!;
   //   }
   // }
+  Map<String, dynamic> getSongDataFromPath(String path) {
+    return songs.firstWhere((element) => element['path'] == path);
+  }
+
   MediaItem getMediaItemFromSongData(Map<String, dynamic> songData) {
     return MediaItem(
       id: songData['id'],
@@ -98,14 +102,20 @@ class UserData {
   }
 
   Future<Map<String, String>?> loadData() async {
+    DateTime _perf1 = DateTime.now();
     final directory = await getApplicationDocumentsDirectory();
     final file =
         File('${directory.path}/flyuserdata.json'); // Use correct file path
     if (await file.exists()) {
       String jsonString = await file.readAsString();
+      if (jsonString.isEmpty) {
+        return null;
+      }
       userData = jsonDecode(jsonString);
       _parseDataIntoSepeateData(userData!);
     }
+    DateTime _perf2 = DateTime.now();
+    log('Data loaded in ${_perf2.difference(_perf1).inMilliseconds}ms');
     return null;
   }
 
@@ -116,6 +126,12 @@ class UserData {
         Map<String, List<String>>.from(data['playlists']); // Type casting
     likedSongs = List<String>.from(data['likedSongs']); // Type casting
     history = List<Map<String, dynamic>>.from(data['history']);
+  }
+
+  void clearData() async {
+    final directory = await getApplicationDocumentsDirectory();
+    final file = File('${directory.path}/flyuserdata.json');
+    await file.delete();
   }
 }
 

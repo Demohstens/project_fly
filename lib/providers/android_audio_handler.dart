@@ -172,7 +172,7 @@ class AndroidAudioHandler extends BaseAudioHandler {
 
   void generateQueue() {
     queue.add(userData.songs
-        .sublist(1, userData.songs.length)
+        .sublist(0, userData.songs.length)
         .map((e) => userData.getMediaItemFromSongData(e))
         .toList());
   }

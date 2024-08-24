@@ -99,23 +99,28 @@ class RenderedSong {
   factory RenderedSong.fromMediaItem(MediaItem item) {
     String path = item.extras!['path'] as String;
     Tag? tag;
-    AudioTags.read(path).then((value) => tag = value);
-    return RenderedSong(
-      id: item.id,
-      path: path,
-      title: item.title,
-      duration: item.duration!, // TODO write proper handling of no duration
-      source: AudioSource.file(path),
-      artist: item.artist,
-      genre: item.genre,
-      releaseDateYear: item.extras!['year'],
-      albumArt: tag == null
-          ? Image.asset("assets/images/placeholder_album_art.png")
-          : tag!.pictures.isEmpty
-              ? Image.asset("assets/images/placeholder_album_art.png")
-              : Image.memory(tag!.pictures.first.bytes),
-      lyrics: null,
-    );
+    try {
+      AudioTags.read(path).then((value) => tag = value);
+      return RenderedSong(
+        id: item.id,
+        path: path,
+        title: item.title,
+        duration: item.duration!, // TODO write proper handling of no duration
+        source: AudioSource.file(path),
+        artist: item.artist,
+        genre: item.genre,
+        releaseDateYear: item.extras!['year'],
+        albumArt: tag == null
+            ? Image.asset("assets/images/placeholder_album_art.png")
+            : tag!.pictures.isEmpty
+                ? Image.asset("assets/images/placeholder_album_art.png")
+                : Image.memory(tag!.pictures.first.bytes),
+        lyrics: null,
+      );
+    } catch (e) {
+      print("Error loading tag: $e");
+      rethrow;
+    }
   }
 
   MediaItem toMediaItem() {
