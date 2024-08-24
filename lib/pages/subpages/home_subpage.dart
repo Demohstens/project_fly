@@ -23,7 +23,7 @@ class ListOfSongs extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     log("Building ListOfSongs");
-    List<MediaItem> songs = userData.songs;
+    List<MediaItem> songs = userData.mediaItems;
     final favoriteCards = context.watch<Settings>().favoriteCards;
 
     return RefreshIndicator(

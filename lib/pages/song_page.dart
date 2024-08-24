@@ -105,9 +105,11 @@ class ButtonRow extends StatelessWidget {
           Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
             IconButton(
                 onPressed: () {
-                  userData.likedSongs.add(song.id);
+                  userData.toggleLikeId(song.id);
                 },
-                icon: const Icon(Icons.favorite)),
+                icon: userData.likedSongs.contains(song.id)
+                    ? const Icon(Icons.favorite, color: Colors.redAccent)
+                    : const Icon(Icons.favorite_border)),
             const Icon(Icons.skip_previous),
             // IconButton(onPressed: () {}, ),
             MenuAnchor(

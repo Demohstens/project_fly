@@ -1,7 +1,9 @@
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:audio_service/audio_service.dart';
 import 'package:audiotags/audiotags.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:path/path.dart' as path;
@@ -57,11 +59,11 @@ Future<MediaItem?> songFromFile(File f) async {
 }
 
 class RenderedSong {
-  final Image? albumArt;
+  late Image? albumArt;
   final String? lyrics;
   final AudioSource source;
 
-  final String id = const Uuid().v4();
+  final String id;
   final String path;
   final String title;
   final String? artist;
@@ -70,6 +72,7 @@ class RenderedSong {
   final int? releaseDateYear;
   final Duration duration;
   RenderedSong({
+    required this.id,
     required this.path,
     required this.title,
     required this.duration,
@@ -79,26 +82,66 @@ class RenderedSong {
     this.releaseDateYear,
     this.albumArt,
     this.lyrics,
-  });
+  }) {
+    Tag? tag;
+    AudioTags.read(path).then((e) => tag = e);
+    if (tag != null) {
+      if (tag!.pictures.isNotEmpty) {
+        albumArt = Image.memory(tag!.pictures.first.bytes);
+      } else {
+        albumArt = Image.asset("assets/images/placeholder_album_art.png");
+      }
+    } else {
+      albumArt = Image.asset("assets/images/placeholder_album_art.png");
+    }
+  }
+  factory RenderedSong.fromSongData(Map<String, dynamic> songData) {
+    if (songData['id'] != null) {
+      return RenderedSong(
+        id: songData['id'] as String,
+        path: songData['path'] as String,
+        title: songData['title'] as String,
+        duration:
+            Duration(milliseconds: int.tryParse(songData['duration']) ?? 0),
+        source: AudioSource.file(songData['path'] as String),
+        artist: songData['artist'] as String?,
+        genre: songData['genre'] as String?,
+        releaseDateYear: songData['releaseDateYear'] as int?,
+        lyrics: songData['lyrics'] as String?,
+      );
+    }
+    return RenderedSong.empty();
+  }
 
   factory RenderedSong.fromMediaItem(MediaItem item) {
     String path = item.extras!['path'] as String;
     Tag? tag;
-    AudioTags.read(path).then((value) => tag = value);
+    try {
+      AudioTags.read(path).then((value) => tag = value);
+      return RenderedSong(
+        id: item.id,
+        path: path,
+        title: item.title,
+        duration: item.duration!, // TODO write proper handling of no duration
+        source: AudioSource.file(path),
+        artist: item.artist,
+        genre: item.genre,
+        releaseDateYear: item.extras!['year'],
+        lyrics: null,
+      );
+    } catch (e) {
+      print("Error loading tag: $e");
+    }
+    return RenderedSong.empty();
+  }
+
+  factory RenderedSong.empty() {
     return RenderedSong(
-      path: path,
-      title: item.title,
-      duration: item.duration!, // TODO write proper handling of no duration
-      source: AudioSource.file(path),
-      artist: item.artist,
-      genre: item.genre,
-      releaseDateYear: item.extras!['year'],
-      albumArt: tag == null
-          ? Image.asset("assets/images/placeholder_album_art.png")
-          : tag!.pictures.isEmpty
-              ? Image.asset("assets/images/placeholder_album_art.png")
-              : Image.memory(tag!.pictures.first.bytes),
-      lyrics: null,
+      id: '',
+      path: '',
+      title: '',
+      duration: Duration.zero,
+      source: AudioSource.uri(Uri()),
     );
   }
 

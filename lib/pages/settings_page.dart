@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:project_fly/providers/settings.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sizer/sizer.dart';
 
 class SettingsPage extends StatelessWidget {
@@ -32,7 +33,24 @@ class SettingsPage extends StatelessWidget {
             // Folder picker
             ListTile(
                 title: DirectoryList(
-                    directories: context.watch<Settings>().musicDirectories))
+                    directories: context.watch<Settings>().musicDirectories)),
+            ListTile(
+              leading: Text("Delete Data"),
+              title: Row(children: [
+                TextButton(
+                    onPressed: () {
+                      SharedPreferences.getInstance().then((value) {
+                        value.clear();
+                      });
+                    },
+                    child: const Text("Delete local data")),
+                TextButton(
+                    onPressed: () {
+                      context.read<Settings>().clearData();
+                    },
+                    child: const Text("Delete all data"))
+              ]),
+            )
           ]);
         }));
   }

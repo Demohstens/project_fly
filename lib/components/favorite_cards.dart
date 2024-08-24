@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:project_fly/pages/subpages/history_subpage.dart';
 import 'package:project_fly/pages/subpages/queue.dart';
 import 'package:project_fly/providers/page_provider.dart';
 
@@ -112,7 +113,9 @@ class HistoryCard extends StatelessWidget {
     return ShortcutCard(
         icon: const Icon(Icons.history),
         text: "History",
-        onTap: () {},
+        onTap: () {
+          context.read<PageProvider>().setToCustomPage(const HistorySubpage());
+        },
         color: Colors.green);
   }
 }
