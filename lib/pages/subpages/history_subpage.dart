@@ -1,6 +1,5 @@
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
-import 'package:project_fly/components/song_list_item.dart';
 import 'package:project_fly/main.dart';
 import 'package:project_fly/models/song.dart';
 
@@ -38,7 +37,6 @@ class HistorySongObject {
   final DateTime time;
   HistorySongObject({required this.song, required this.time});
 
-  @override
   Widget build(BuildContext context) {
     return ListTile(
       onTap: () {

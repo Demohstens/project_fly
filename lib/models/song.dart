@@ -1,9 +1,7 @@
-import 'dart:developer';
 import 'dart:io';
 
 import 'package:audio_service/audio_service.dart';
 import 'package:audiotags/audiotags.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:path/path.dart' as path;
@@ -115,24 +113,18 @@ class RenderedSong {
 
   factory RenderedSong.fromMediaItem(MediaItem item) {
     String path = item.extras!['path'] as String;
-    Tag? tag;
-    try {
-      AudioTags.read(path).then((value) => tag = value);
-      return RenderedSong(
-        id: item.id,
-        path: path,
-        title: item.title,
-        duration: item.duration!, // TODO write proper handling of no duration
-        source: AudioSource.file(path),
-        artist: item.artist,
-        genre: item.genre,
-        releaseDateYear: item.extras!['year'],
-        lyrics: null,
-      );
-    } catch (e) {
-      print("Error loading tag: $e");
-    }
-    return RenderedSong.empty();
+
+    return RenderedSong(
+      id: item.id,
+      path: path,
+      title: item.title,
+      duration: item.duration!, // TODO write proper handling of no duration
+      source: AudioSource.file(path),
+      artist: item.artist,
+      genre: item.genre,
+      releaseDateYear: item.extras!['year'],
+      lyrics: null,
+    );
   }
 
   factory RenderedSong.empty() {

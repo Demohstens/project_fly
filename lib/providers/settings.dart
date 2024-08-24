@@ -130,7 +130,7 @@ class Settings extends ChangeNotifier {
             if (f.existsSync()) {
               try {
                 Tag? metadata = await AudioTags.read(entity.path);
-                Map<String, dynamic> newSongData = {
+                newSongData = {
                   'id': songData['id'],
                   'title': metadata?.title ?? songData['title'],
                   'artist': metadata?.trackArtist ?? songData['artist'],
@@ -142,7 +142,7 @@ class Settings extends ChangeNotifier {
                   'path': entity.path,
                 };
               } catch (e) {
-                dev.log("CANNOT LOAD METADATA $e");
+                dev.log("CANNOT LOAD METADATA ", error: e);
                 continue;
               }
 
