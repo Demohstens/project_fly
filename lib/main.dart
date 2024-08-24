@@ -4,7 +4,7 @@ import 'package:project_fly/providers/android_audio_handler.dart';
 import 'package:project_fly/providers/page_provider.dart';
 import 'package:project_fly/providers/settings.dart' as settings;
 import 'package:project_fly/pages/homepage.dart';
-import 'package:project_fly/utils/userdata.dart';
+import 'package:project_fly/models/userdata.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
 

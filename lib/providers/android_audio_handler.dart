@@ -44,7 +44,8 @@ class AndroidAudioHandler extends BaseAudioHandler {
   @override
   Future<void> playMediaItem(MediaItem mediaItem) async {
     // Creates an audio source from the media item
-    currentSong.add(RenderedSong.fromMediaItem(mediaItem));
+    RenderedSong currentSongRendered = RenderedSong.fromMediaItem(mediaItem);
+    currentSong.add(currentSongRendered);
 
     AudioSource source = AudioSource.file(mediaItem.extras!['path']);
 
@@ -52,6 +53,7 @@ class AndroidAudioHandler extends BaseAudioHandler {
     _player.setAudioSource(source, preload: true);
 
     play();
+    userData.addSongToHistory(currentSongRendered);
   }
 
   @override

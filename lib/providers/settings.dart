@@ -1,8 +1,6 @@
 import 'dart:developer' as dev;
 import 'dart:io';
-import 'dart:math';
 
-import 'package:audio_service/audio_service.dart';
 import 'package:audiotags/audiotags.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -10,7 +8,6 @@ import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:project_fly/components/favorite_cards.dart';
 import 'package:project_fly/main.dart';
-import 'package:project_fly/models/song.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 import 'package:path/path.dart';
@@ -37,7 +34,7 @@ class Settings extends ChangeNotifier {
   List<Directory> _musicDirectories = [];
   bool _isDarkMode = false;
   final List<Widget> _favoriteCards = [
-    const FavoriteCard(typeOfCard: FavoriteCards.currentSong),
+    const FavoriteCard(typeOfCard: FavoriteCards.history),
     const FavoriteCard(typeOfCard: FavoriteCards.queue),
     const FavoriteCard(typeOfCard: FavoriteCards.playlists),
     const FavoriteCard(typeOfCard: FavoriteCards.settings),
@@ -122,7 +119,9 @@ class Settings extends ChangeNotifier {
               dev.log("CANNOT LOAD METADATA $e");
               continue;
             }
-          } else {
+          }
+          // File already exists in the song list
+          else {
             Map<String, dynamic> songData =
                 userData.getSongDataFromPath(entity.path);
             // Ensure that the file still exists AND that the file is the same
@@ -149,7 +148,6 @@ class Settings extends ChangeNotifier {
 
               outputList.add(newSongData);
             }
-// File already exists in the song list
           }
         } else if (entity is Directory) {
           // Optional: Uncomment if you want to recurse into directories as they are found

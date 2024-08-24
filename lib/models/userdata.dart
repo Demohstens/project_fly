@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'dart:io';
 import 'package:audio_service/audio_service.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:project_fly/models/song.dart';
 import 'package:uuid/uuid.dart';
 
 // ...
@@ -36,9 +37,8 @@ class UserData {
     songs.add(getSongDataFromMediaItem(song));
   }
 
-  MediaItem? findSongById(String id) {
-    return getMediaItemFromSongData(
-        songs.firstWhere((element) => element["id"] == id));
+  Map<String, dynamic>? findSongById(String id) {
+    return songs.firstWhere((element) => element['id'] == id);
   }
 
   bool isLiked(String id) {
@@ -47,6 +47,21 @@ class UserData {
 
   bool songExistsPath(String path) {
     return songs.any((element) => element['path'] == path);
+  }
+
+  void addSongToHistory(RenderedSong song) {
+    Map<String, dynamic>? songData = findSongById(song.id);
+    if (songData != null) {
+      history.add(
+        {
+          'song': songData,
+          'time': DateTime.now().toIso8601String(),
+        },
+      );
+      saveData();
+    } else {
+      return;
+    }
   }
 
   // createSongPaths(List<MediaItem> songs) {
