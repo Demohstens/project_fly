@@ -80,7 +80,7 @@ class Settings extends ChangeNotifier {
       List<MediaItem> a = await depthSearchFolder(dir);
       _dirsSongsTemp.add(a);
     }
-    print(_dirsSongsTemp[0].length);
+
     userData.songs = _dirsSongsTemp.expand((element) => element).toList();
     print(userData.songs);
 

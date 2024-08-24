@@ -8,7 +8,7 @@ import 'package:uuid/uuid.dart';
 
 // ...
 class UserData {
-  Directory? savePath = Directory.current;
+  Directory? savePath;
   String userId = '';
   List<MediaItem> songs = [];
   Map<String, List<String>> playlistData = {};
@@ -38,7 +38,7 @@ class UserData {
   Future<void> saveData() async {
     log("Saving data");
     final directory = await getApplicationDocumentsDirectory();
-    final saveFile = File('${directory.path}/userdata.json');
+    final saveFile = File('${directory.path}/flyuserdata.json');
     List<Map<String, dynamic>> _songList = songs
         .map((e) => <String, dynamic>{
               'id': e.id,
@@ -65,7 +65,7 @@ class UserData {
   Future<Map<String, String>?> loadData() async {
     final directory = await getApplicationDocumentsDirectory();
     final file =
-        File('${directory.path}/userdata.json'); // Use correct file path
+        File('${directory.path}/flyuserdata.json'); // Use correct file path
     if (await file.exists()) {
       String jsonString = await file.readAsString();
       userData = jsonDecode(jsonString);
