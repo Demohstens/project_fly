@@ -17,6 +17,9 @@ class _SongPageState extends State<SongPage> {
 
   StreamSubscription? stateListener;
   StreamSubscription? songListener;
+
+  late ButtonRow? buttonRow = null;
+
   @override
   void initState() {
     stateListener = audioHandler.playbackState.listen((state) {
@@ -29,6 +32,8 @@ class _SongPageState extends State<SongPage> {
       } else {
         setState(() {
           this.song = song;
+          print("Song: ${song.title}");
+          buttonRow = ButtonRow(song: song);
         });
       }
     });
@@ -55,7 +60,7 @@ class _SongPageState extends State<SongPage> {
           title: Text(song.title),
         ),
         bottomNavigationBar: BottomAppBar(
-          child: ButtonRow(song: song),
+          child: buttonRow,
         ),
         body: Container(
             constraints: BoxConstraints.tightFor(width: 100.w, height: 100.h),
@@ -117,105 +122,108 @@ class _ButtonRowState extends State<ButtonRow> {
   final MenuController menuController = MenuController();
 
   @override
-  Widget build(BuildContext context) => Column(
-        children: [
-          const Expanded(
-            child: ProgressSlider(),
+  Widget build(BuildContext context) {
+    print("Building button row");
+    return Column(
+      children: [
+        const Expanded(
+          child: ProgressSlider(),
+        ),
+        Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
+          IconButton(
+              onPressed: () {
+                setState(() {});
+                userData.toggleLikeId(song.id);
+              },
+              icon: userData.likedSongs.contains(song.id)
+                  ? const Icon(Icons.favorite, color: Colors.redAccent)
+                  : const Icon(Icons.favorite_border)),
+          IconButton(
+            onPressed: () {
+              audioHandler.skipToPrevious();
+            },
+            icon: const Icon(Icons.skip_previous),
           ),
-          Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
-            IconButton(
-                onPressed: () {
-                  setState(() {});
-                  userData.toggleLikeId(song.id);
-                },
-                icon: userData.likedSongs.contains(song.id)
-                    ? const Icon(Icons.favorite, color: Colors.redAccent)
-                    : const Icon(Icons.favorite_border)),
-            IconButton(
-              onPressed: () {
-                audioHandler.skipToPrevious();
-              },
-              icon: const Icon(Icons.skip_previous),
-            ),
-            MenuAnchor(
-              childFocusNode: childFocusNode,
-              controller: menuController,
-              menuChildren: [
-                MenuItemButton(
-                    child: RotatedBox(
-                      quarterTurns: 3,
-                      child: Slider(
-                          value: audioHandler.player.volume,
-                          onChanged: (newVolumte) {
-                            setState(() {
-                              audioHandler.setVolume(newVolumte);
-                            });
-                          }),
-                    ),
-                    onPressed: () {
-                      menuController.close();
-                    }),
-              ],
-              // Volume control
-              child: IconButton(
+          MenuAnchor(
+            childFocusNode: childFocusNode,
+            controller: menuController,
+            menuChildren: [
+              MenuItemButton(
+                  child: RotatedBox(
+                    quarterTurns: 3,
+                    child: Slider(
+                        value: audioHandler.player.volume,
+                        onChanged: (newVolumte) {
+                          setState(() {
+                            audioHandler.setVolume(newVolumte);
+                          });
+                        }),
+                  ),
                   onPressed: () {
-                    if (menuController.isOpen) {
-                      menuController.close();
-                    } else {
-                      menuController.open();
-                    }
-                  },
-                  icon: getVolumeIcon(audioHandler.player.volume)),
-            ),
-            // Song info
-            Expanded(
-              flex: 2,
-              child: SelectableRegion(
-                  focusNode: FocusNode(),
-                  selectionControls: MaterialTextSelectionControls(),
-                  child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          song.title,
-                          style: TextStyle(
-                              fontSize: 15, fontWeight: FontWeight.bold),
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        if (song.artist != null)
-                          Text(song.artist!,
-                              style: TextStyle(fontSize: 15),
-                              overflow: TextOverflow.ellipsis),
-                        // TODO fix aligment.
-                      ])),
-            ),
-            // Play button
-            IconButton(
-              onPressed: () {
-                audioHandler.togglePlaying();
-              },
-              icon: audioHandler.playbackState.value.playing
-                  ? Icon(Icons.pause)
-                  : Icon(Icons.play_arrow),
-            ),
-            IconButton(
+                    menuController.close();
+                  }),
+            ],
+            // Volume control
+            child: IconButton(
                 onPressed: () {
-                  audioHandler.skipToNext();
+                  if (menuController.isOpen) {
+                    menuController.close();
+                  } else {
+                    menuController.open();
+                  }
                 },
-                icon: Icon(Icons.skip_next)),
-            const Icon(Icons.playlist_add),
-          ]),
-        ],
-      );
-}
+                icon: getVolumeIcon(audioHandler.player.volume)),
+          ),
+          // Song info
+          Expanded(
+            flex: 2,
+            child: SelectableRegion(
+                focusNode: FocusNode(),
+                selectionControls: MaterialTextSelectionControls(),
+                child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        song.title,
+                        style: TextStyle(
+                            fontSize: 15, fontWeight: FontWeight.bold),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      if (song.artist != null)
+                        Text(song.artist!,
+                            style: TextStyle(fontSize: 15),
+                            overflow: TextOverflow.ellipsis),
+                      // TODO fix aligment.
+                    ])),
+          ),
+          // Play button
+          IconButton(
+            onPressed: () {
+              audioHandler.togglePlaying();
+            },
+            icon: audioHandler.playbackState.value.playing
+                ? Icon(Icons.pause)
+                : Icon(Icons.play_arrow),
+          ),
+          IconButton(
+              onPressed: () {
+                audioHandler.skipToNext();
+              },
+              icon: Icon(Icons.skip_next)),
+          const Icon(Icons.playlist_add),
+        ]),
+      ],
+    );
+  }
 
-Icon getVolumeIcon(double volume) {
-  // audioHandler.;
-  if (volume == 0) {
-    return Icon(Icons.volume_off);
-  } else if (volume < 0.5) {
-    return Icon(Icons.volume_down);
-  } else {
-    return Icon(Icons.volume_up);
+  Icon getVolumeIcon(double volume) {
+    // audioHandler.;
+    if (volume == 0) {
+      return Icon(Icons.volume_off);
+    } else if (volume < 0.5) {
+      return Icon(Icons.volume_down);
+    } else {
+      return Icon(Icons.volume_up);
+    }
   }
 }
