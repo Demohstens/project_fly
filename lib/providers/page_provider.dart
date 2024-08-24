@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:project_fly/components/home_subpage.dart';
+import 'package:project_fly/pages/subpages/home_subpage.dart';
 
 class PageProvider extends ChangeNotifier {
   int _currentPageIndex = 0;

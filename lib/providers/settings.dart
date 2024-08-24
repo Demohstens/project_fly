@@ -2,6 +2,7 @@ import 'dart:developer';
 import 'dart:io';
 
 import 'package:audio_service/audio_service.dart';
+import 'package:audiotags/audiotags.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
@@ -10,6 +11,8 @@ import 'package:project_fly/components/favorite_cards.dart';
 import 'package:project_fly/main.dart';
 import 'package:project_fly/models/song.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:uuid/uuid.dart';
+import 'package:path/path.dart';
 
 class Settings extends ChangeNotifier {
   // * SHARED PREFERENCES * //
@@ -75,39 +78,70 @@ class Settings extends ChangeNotifier {
   }
 
   void updateSongList() async {
-    List<List<MediaItem>> _dirsSongsTemp = [];
+    List<Map<String, dynamic>> _songList = [];
+    //  = songs
+    //     .map((e) => <String, dynamic>{
+    //           'id': e.id,
+    //           'title': e.title,
+    //           'artist': e.artist,
+    //           'album': e.album,
+    //           'duration': e.duration?.inMilliseconds.toString(),
+    //           'path': e.extras!['path'].toString()
+    //         })
+    //     .toList();
+    List<Map<String, dynamic>> _dirSongSubList = [];
     for (Directory dir in _musicDirectories) {
-      List<MediaItem> a = await depthSearchFolder(dir);
-      _dirsSongsTemp.add(a);
+      List<Map<String, dynamic>> a = await depthSearchFolder(dir);
+      _songList.addAll(a);
     }
 
-    userData.songs = _dirsSongsTemp.expand((element) => element).toList();
-    print(userData.songs);
+    userData.songs = _songList;
 
     userData.saveData();
   }
 
-  Future<List<MediaItem>> depthSearchFolder(
+  Future<List<Map<String, dynamic>>> depthSearchFolder(
     Directory dir,
   ) async {
-    List<MediaItem> outputList = [];
+    List<Map<String, dynamic>> outputList = [];
     log("Searching folder: ${dir.path}");
     await for (FileSystemEntity entity
         in dir.list(recursive: true, followLinks: false)) {
       if (entity is File) {
         String ext = entity.path.split('.').last;
         if (ext == 'mp3' || ext == 'm4a' || ext == 'flac' || ext == 'mp4') {
-          MediaItem? song = await songFromFile(entity);
-          if (song != null) {
-            outputList.add(song);
+          if (!userData.songExistsPath(entity.path)) {
+            try {
+              Tag? metadata = await AudioTags.read(entity.path);
+              outputList.add({
+                'id': const Uuid().v4(),
+                'title': metadata?.title ??
+                    basenameWithoutExtension(entity.path)
+                        .split("-")
+                        .first
+                        .trim(),
+                'artist': metadata?.trackArtist ??
+                    basenameWithoutExtension(entity.path)
+                        .split("-")
+                        .last
+                        .trim(),
+                'album': metadata?.album,
+                'duration': metadata?.duration?.toString(),
+                'path': entity.path,
+              });
+            } catch (e) {
+              log("CANNOT LOAD METADATA $e");
+              continue;
+            }
+          } else {
+            log("file Already on record ${entity.path}");
           }
-        } else {}
-      } else if (entity is Directory) {
-        // Optional: Uncomment if you want to recurse into directories as they are found
-        // await depthSearchFolder(entity);
+        } else if (entity is Directory) {
+          // Optional: Uncomment if you want to recurse into directories as they are found
+          // await depthSearchFolder(entity);
+        }
       }
     }
-
     return outputList;
   }
 

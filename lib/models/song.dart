@@ -61,7 +61,7 @@ class RenderedSong {
   final String? lyrics;
   final AudioSource source;
 
-  final String id = const Uuid().v4();
+  final String id;
   final String path;
   final String title;
   final String? artist;
@@ -70,6 +70,7 @@ class RenderedSong {
   final int? releaseDateYear;
   final Duration duration;
   RenderedSong({
+    required this.id,
     required this.path,
     required this.title,
     required this.duration,
@@ -80,12 +81,27 @@ class RenderedSong {
     this.albumArt,
     this.lyrics,
   });
+  factory RenderedSong.fromSongData(Map<String, dynamic> songData) {
+    return RenderedSong(
+      id: songData['id'] as String,
+      path: songData['path'] as String,
+      title: songData['title'] as String,
+      duration: Duration(milliseconds: int.tryParse(songData['duration']) ?? 0),
+      source: AudioSource.file(songData['path'] as String),
+      artist: songData['artist'] as String?,
+      genre: songData['genre'] as String?,
+      releaseDateYear: songData['releaseDateYear'] as int?,
+      albumArt: songData['albumArt'] as Image?,
+      lyrics: songData['lyrics'] as String?,
+    );
+  }
 
   factory RenderedSong.fromMediaItem(MediaItem item) {
     String path = item.extras!['path'] as String;
     Tag? tag;
     AudioTags.read(path).then((value) => tag = value);
     return RenderedSong(
+      id: item.id,
       path: path,
       title: item.title,
       duration: item.duration!, // TODO write proper handling of no duration

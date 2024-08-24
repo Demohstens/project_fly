@@ -44,13 +44,14 @@ class AndroidAudioHandler extends BaseAudioHandler {
   @override
   Future<void> playMediaItem(MediaItem mediaItem) async {
     // Creates an audio source from the media item
+    currentSong.add(RenderedSong.fromMediaItem(mediaItem));
+
     AudioSource source = AudioSource.file(mediaItem.extras!['path']);
 
     // Loads the audio source into the player
-    _player.setAudioSource(source);
+    _player.setAudioSource(source, preload: true);
 
     play();
-    currentSong.add(RenderedSong.fromMediaItem(mediaItem));
   }
 
   @override
@@ -170,7 +171,10 @@ class AndroidAudioHandler extends BaseAudioHandler {
   /* Methods Responsible for managing the Queue */
 
   void generateQueue() {
-    queue.add(userData.songs.sublist(1, userData.songs.length));
+    queue.add(userData.songs
+        .sublist(1, userData.songs.length)
+        .map((e) => userData.getMediaItemFromSongData(e))
+        .toList());
   }
 
   @override
@@ -190,8 +194,6 @@ class AndroidAudioHandler extends BaseAudioHandler {
       }
     });
   }
-
-  void addPlayStateListener(Function(PlaybackState) func) {}
 
   StreamSubscription addPositionListener(Function(Duration) func) {
     return _player.positionStream.listen((event) {

@@ -3,30 +3,50 @@ import 'dart:developer';
 import 'dart:io';
 import 'package:audio_service/audio_service.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 
 // ...
 class UserData {
   Directory? savePath;
   String userId = '';
-  List<MediaItem> songs = [];
+  List<Map<String, dynamic>> songs = [];
   Map<String, List<String>> playlistData = {};
   List<String> likedSongs = [];
   List<Map<String, dynamic>> history = [];
 
   Map<String, dynamic>? userData;
 
+  List<MediaItem> get mediaItems {
+    return songs.map((e) => getMediaItemFromSongData(e)).toList();
+  }
+
   UserData() {
     loadData();
   }
 
-  void addSong(MediaItem song) {
-    songs.add(song);
+  void toggleLikeId(String id) {
+    if (likedSongs.contains(id)) {
+      likedSongs.remove(id);
+    } else {
+      likedSongs.add(id);
+    }
   }
 
-  MediaItem findSongById(String id) {
-    return songs.firstWhere((element) => element.id == id);
+  void addSong(MediaItem song) {
+    songs.add(getSongDataFromMediaItem(song));
+  }
+
+  MediaItem? findSongById(String id) {
+    return getMediaItemFromSongData(
+        songs.firstWhere((element) => element["id"] == id));
+  }
+
+  bool isLiked(String id) {
+    return likedSongs.contains(id);
+  }
+
+  bool songExistsPath(String path) {
+    return songs.any((element) => element['path'] == path);
   }
 
   // createSongPaths(List<MediaItem> songs) {
@@ -34,25 +54,40 @@ class UserData {
   //     songData[song.id] = song.extras!['path']!;
   //   }
   // }
+  MediaItem getMediaItemFromSongData(Map<String, dynamic> songData) {
+    return MediaItem(
+      id: songData['id'],
+      title: songData['title'],
+      artist: songData['artist'],
+      album: songData['album'],
+      duration: Duration(
+          milliseconds: int.tryParse(songData['duration'] ?? "0") ?? 0),
+      extras: <String, dynamic>{
+        'path': songData['path'],
+      },
+    );
+  }
+
+  Map<String, dynamic> getSongDataFromMediaItem(MediaItem item) {
+    return <String, dynamic>{
+      'id': item.id,
+      'title': item.title,
+      'artist': item.artist,
+      'album': item.album,
+      'duration': item.duration?.inMilliseconds.toString(),
+      'path': item.extras!['path'].toString()
+    };
+  }
 
   Future<void> saveData() async {
     log("Saving data");
     final directory = await getApplicationDocumentsDirectory();
     final saveFile = File('${directory.path}/flyuserdata.json');
-    List<Map<String, dynamic>> _songList = songs
-        .map((e) => <String, dynamic>{
-              'id': e.id,
-              'title': e.title,
-              'artist': e.artist,
-              'album': e.album,
-              'duration': e.duration?.inMilliseconds.toString(),
-              'path': e.extras!['path'].toString()
-            })
-        .toList();
+
     String jsonString = jsonEncode(
       <String, dynamic>{
         'userId': userId,
-        'songs': _songList,
+        'songs': songs,
         'playlists': playlistData,
         'likedSongs': likedSongs,
         'history': history,
@@ -76,20 +111,7 @@ class UserData {
 
   void _parseDataIntoSepeateData(Map<String, dynamic> data) {
     userId = data['userId'] ?? Uuid().v4();
-    var songData = data['songs'];
-    for (var song in songData) {
-      MediaItem newSong = MediaItem(
-        id: song['id'],
-        title: song['title'],
-        artist: song['artist'],
-        album: song['album'],
-        duration: Duration(seconds: int.tryParse(song['duration']) ?? 0),
-        extras: <String, dynamic>{
-          'path': song['path'],
-        },
-      );
-      songs.add(newSong);
-    }
+    songs = List<Map<String, dynamic>>.from(data['songs']); // Type casting
     playlistData =
         Map<String, List<String>>.from(data['playlists']); // Type casting
     likedSongs = List<String>.from(data['likedSongs']); // Type casting
