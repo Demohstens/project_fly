@@ -3,6 +3,8 @@ import 'dart:developer';
 import 'dart:io';
 import 'package:audio_service/audio_service.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:uuid/uuid.dart';
 
 // ...
 class UserData {
@@ -34,6 +36,7 @@ class UserData {
   // }
 
   Future<void> saveData() async {
+    log("Saving data");
     final directory = await getApplicationDocumentsDirectory();
     final saveFile = File('${directory.path}/userdata.json');
     List<Map<String, dynamic>> _songList = songs
@@ -61,7 +64,8 @@ class UserData {
 
   Future<Map<String, String>?> loadData() async {
     final directory = await getApplicationDocumentsDirectory();
-    final file = File('${directory.path}/$savePath');
+    final file =
+        File('${directory.path}/userdata.json'); // Use correct file path
     if (await file.exists()) {
       String jsonString = await file.readAsString();
       userData = jsonDecode(jsonString);
@@ -71,8 +75,8 @@ class UserData {
   }
 
   void _parseDataIntoSepeateData(Map<String, dynamic> data) {
-    userId = data['userId'];
-    List<Map<String, dynamic>> songData = data['songs'];
+    userId = data['userId'] ?? Uuid().v4();
+    var songData = data['songs'];
     for (var song in songData) {
       MediaItem newSong = MediaItem(
         id: song['id'],
@@ -86,9 +90,10 @@ class UserData {
       );
       songs.add(newSong);
     }
-    playlistData = data['playlists'];
-    likedSongs = data['likedSongs'];
-    history = data['history'];
+    playlistData =
+        Map<String, List<String>>.from(data['playlists']); // Type casting
+    likedSongs = List<String>.from(data['likedSongs']); // Type casting
+    history = List<Map<String, dynamic>>.from(data['history']);
   }
 }
 

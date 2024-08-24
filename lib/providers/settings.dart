@@ -77,21 +77,18 @@ class Settings extends ChangeNotifier {
   void updateSongList() {
     List<List<MediaItem>> _dirsSongsTemp = [];
     for (Directory dir in _musicDirectories) {
-      List<MediaItem> _songsTemp = [];
-      if (dir == null) {
-        log("Cant update song list, dir is null");
-        return;
-      }
-      depthSearchFolder(dir, outputList: _songsTemp);
-      _dirsSongsTemp.add(_songsTemp);
+      depthSearchFolder(dir).then((value) => _dirsSongsTemp.add(value));
     }
     userData.songs = _dirsSongsTemp.expand((element) => element).toList();
+    print(userData.songs);
 
     userData.saveData();
   }
 
-  Future<void> depthSearchFolder(Directory dir,
-      {List<MediaItem>? outputList}) async {
+  Future<List<MediaItem>> depthSearchFolder(
+    Directory dir,
+  ) async {
+    List<MediaItem> outputList = [];
     log("Searching folder: ${dir.path}");
     await for (FileSystemEntity entity
         in dir.list(recursive: true, followLinks: false)) {
@@ -102,7 +99,7 @@ class Settings extends ChangeNotifier {
           if (song != null) {
             userData.addSong(song);
 
-            outputList?.add(song);
+            outputList.add(song);
           }
         } else {}
       } else if (entity is Directory) {
@@ -110,10 +107,13 @@ class Settings extends ChangeNotifier {
         // await depthSearchFolder(entity);
       }
     }
+    return outputList;
   }
 
   void addDirectory(Directory dir) {
     _musicDirectories.add(dir);
+    _settings.setStringList(
+        "musicDirectories", _musicDirectories.map((e) => e.path).toList());
     notifyListeners();
   }
 
