@@ -15,11 +15,12 @@ UserData userData = UserData();
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized(); // Ensure this is called
   audioHandler = await AudioService.init(
-      builder: () => AndroidAudioHandler(),
-      config: const AudioServiceConfig(
-        androidNotificationChannelId: 'com.demosoftworks.fly.fly.channel.audio',
-        androidNotificationChannelName: 'Fly Music',
-      ));
+    builder: () => AndroidAudioHandler(),
+    config: const AudioServiceConfig(
+      androidNotificationChannelId: 'com.demosoftworks.fly.fly.channel.audio',
+      androidNotificationChannelName: 'Fly Music',
+    ),
+  );
 
   // await Firebase.initializeApp(
   //   options: DefaultFirebaseOptions.currentPlatform,
@@ -38,30 +39,31 @@ class Fly extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
-        providers: [
-          ChangeNotifierProvider(create: (_) => settings.Settings()),
-          ChangeNotifierProvider(create: (_) => PageProvider()),
-        ],
-        child: ResponsiveSizer(
-          builder: (context, orientation, deviceType) {
-            return MaterialApp(
-              title: 'Fly - Music Player',
-              theme: ThemeData(
-                colorScheme: context.watch<settings.Settings>().isDarkMode
-                    ? darkColorScheme
-                    : colorScheme,
-                useMaterial3: true,
-              ),
-              darkTheme: ThemeData.dark(
-                useMaterial3: true,
-              ),
-              themeMode: context.watch<settings.Settings>().isDarkMode
-                  ? ThemeMode.dark
-                  : ThemeMode.light,
-              home: HomePage(),
-            );
-          },
-        ));
+      providers: [
+        ChangeNotifierProvider(create: (_) => settings.Settings()),
+        ChangeNotifierProvider(create: (_) => PageProvider()),
+      ],
+      child: ResponsiveSizer(
+        builder: (context, orientation, deviceType) {
+          return MaterialApp(
+            title: 'Fly - Music Player',
+            theme: ThemeData(
+              colorScheme: context.watch<settings.Settings>().isDarkMode
+                  ? darkColorScheme
+                  : colorScheme,
+              useMaterial3: true,
+            ),
+            darkTheme: ThemeData.dark(
+              useMaterial3: true,
+            ),
+            themeMode: context.watch<settings.Settings>().isDarkMode
+                ? ThemeMode.dark
+                : ThemeMode.light,
+            home: HomePage(),
+          );
+        },
+      ),
+    );
   }
 }
 

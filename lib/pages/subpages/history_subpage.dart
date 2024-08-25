@@ -56,7 +56,7 @@ class HistorySongObject {
 
 class HistoryListItem extends StatelessWidget {
   final HistorySongObject history;
-  HistoryListItem({required this.history, super.key});
+  const HistoryListItem({required this.history, super.key});
 
   @override
   Widget build(BuildContext context) {
