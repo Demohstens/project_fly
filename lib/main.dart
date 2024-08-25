@@ -5,6 +5,7 @@ import 'package:project_fly/providers/page_provider.dart';
 import 'package:project_fly/providers/settings.dart' as settings;
 import 'package:project_fly/pages/homepage.dart';
 import 'package:project_fly/models/userdata.dart';
+import 'package:project_fly/providers/song_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
 
@@ -42,6 +43,7 @@ class Fly extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (_) => settings.Settings()),
         ChangeNotifierProvider(create: (_) => PageProvider()),
+        ChangeNotifierProvider(create: (_) => SongProvier()),
       ],
       child: ResponsiveSizer(
         builder: (context, orientation, deviceType) {
