@@ -4,52 +4,23 @@ import 'package:flutter/material.dart';
 import 'package:project_fly/components/progress_slider.dart';
 import 'package:project_fly/main.dart';
 import 'package:project_fly/models/song.dart';
+import 'package:project_fly/providers/song_provider.dart';
 import 'package:sizer/sizer.dart';
 import 'package:aura_box/aura_box.dart';
+import 'package:provider/provider.dart';
 
-class SongPage extends StatefulWidget {
-  @override
-  State<StatefulWidget> createState() => _SongPageState();
-}
-
-class _SongPageState extends State<SongPage> {
-  RenderedSong song = audioHandler.currentSong.value!;
-
-  StreamSubscription? stateListener;
-  StreamSubscription? songListener;
-
-  late ButtonRow? buttonRow = null;
-
-  @override
-  void initState() {
-    stateListener = audioHandler.playbackState.listen((state) {
-      setState(() {});
-    });
-    songListener = audioHandler.addCurrentSongListener((RenderedSong? song) {
-      if (song == null) {
-        Navigator.pop(
-            context); // If the song is null, pop the page. it is no longer needed.
-      } else {
-        setState(() {
-          this.song = song;
-          print("Song: ${song.title}");
-          buttonRow = ButtonRow(song: song);
-        });
-      }
-    });
-    // TODO: implement initState
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    songListener?.cancel();
-    stateListener?.cancel();
-    super.dispose();
-  }
-
+class SongPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final RenderedSong? song =
+        context.select((SongProvier songProvier) => songProvier.currentSong);
+    if (song == null) {
+      return const Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
     return Scaffold(
         appBar: AppBar(
           leading: IconButton(
@@ -57,10 +28,10 @@ class _SongPageState extends State<SongPage> {
                 Navigator.pop(context);
               },
               icon: Icon(Icons.arrow_back)),
-          title: Text(song.title),
+          title: Text(song!.title),
         ),
         bottomNavigationBar: BottomAppBar(
-          child: buttonRow,
+          child: ButtonRow(),
         ),
         body: Container(
             constraints: BoxConstraints.tightFor(width: 100.w, height: 100.h),
@@ -97,7 +68,7 @@ class _SongPageState extends State<SongPage> {
                     borderRadius: BorderRadius.circular(10),
                     child: ClipRect(
                       child: SizedBox(
-                          width: 75.sp, height: 75.sp, child: song.albumArt),
+                          width: 75.sp, height: 75.sp, child: song?.albumArt),
                     )),
                 Container()
               ]),
@@ -106,24 +77,23 @@ class _SongPageState extends State<SongPage> {
 }
 
 class ButtonRow extends StatefulWidget {
-  ButtonRow({required this.song});
-  final RenderedSong song;
-
   @override
-  State<StatefulWidget> createState() => _ButtonRowState(song: song);
+  State<StatefulWidget> createState() => _ButtonRowState();
 }
 
 class _ButtonRowState extends State<ButtonRow> {
-  RenderedSong song;
-
-  _ButtonRowState({required this.song});
+  _ButtonRowState();
 
   final FocusNode childFocusNode = FocusNode();
   final MenuController menuController = MenuController();
 
   @override
   Widget build(BuildContext context) {
-    print("Building button row");
+    RenderedSong? tempSong =
+        context.select((SongProvier songProvier) => songProvier.currentSong);
+    bool isPlaying =
+        context.select((SongProvier songProvier) => songProvier.isPlaying);
+    RenderedSong song = tempSong!;
     return Column(
       children: [
         const Expanded(
@@ -201,9 +171,7 @@ class _ButtonRowState extends State<ButtonRow> {
             onPressed: () {
               audioHandler.togglePlaying();
             },
-            icon: audioHandler.playbackState.value.playing
-                ? Icon(Icons.pause)
-                : Icon(Icons.play_arrow),
+            icon: isPlaying ? Icon(Icons.pause) : Icon(Icons.play_arrow),
           ),
           IconButton(
               onPressed: () {
