@@ -38,16 +38,16 @@ class SongProvier extends ChangeNotifier {
     });
 
     // Listen to the current position
-    audioHandler.player.positionStream.listen((position) {
-      _currentPosition = position;
-      notifyListeners();
-    });
+    // audioHandler.player.positionStream.listen((position) {
+    //   _currentPosition = position;
+    //   notifyListeners();
+    // });
 
     // Listen to the total duration
-    audioHandler.player.durationStream.listen((duration) {
-      _totalDuration = duration;
-      notifyListeners();
-    });
+    // audioHandler.player.durationStream.listen((duration) {
+    //   _totalDuration = duration;
+    //   notifyListeners();
+    // });
 
     // Listen to the player state
     audioHandler.playbackState.listen((state) {
