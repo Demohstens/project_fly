@@ -54,6 +54,9 @@ dependencies:
   just_audio: ^0.9.37
   just_audio_windows: ^0.2.1
   rxdart: ^0.28.0
+  sqflite: ^2.3.3+1
+  path: any
+  infinite_scroll_pagination: ^4.0.0
 
 dev_dependencies:
   flutter_test:

@@ -62,7 +62,9 @@ class Settings extends ChangeNotifier {
   void removeDirectory(Directory dir) {
     _musicDirectories.remove(dir);
     _settings.setStringList(
-        "musicDirectories", _musicDirectories.map((e) => e.path).toList());
+      "musicDirectories",
+      _musicDirectories.map((e) => e.path).toList(),
+    );
     notifyListeners();
   }
 
@@ -71,7 +73,9 @@ class Settings extends ChangeNotifier {
         directory ?? await getApplicationDocumentsDirectory();
     _musicDirectories.add(_musicDirectory);
     _settings.setStringList(
-        "musicDirectories", _musicDirectories.map((e) => e.path).toList());
+      "musicDirectories",
+      _musicDirectories.map((e) => e.path).toList(),
+    );
     notifyListeners();
   }
 
@@ -161,7 +165,9 @@ class Settings extends ChangeNotifier {
   void addDirectory(Directory dir) {
     _musicDirectories.add(dir);
     _settings.setStringList(
-        "musicDirectories", _musicDirectories.map((e) => e.path).toList());
+      "musicDirectories",
+      _musicDirectories.map((e) => e.path).toList(),
+    );
     notifyListeners();
   }
 

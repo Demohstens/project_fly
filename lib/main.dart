@@ -1,6 +1,7 @@
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
 import 'package:project_fly/providers/android_audio_handler.dart';
+import 'package:project_fly/providers/database_provider.dart';
 import 'package:project_fly/providers/page_provider.dart';
 import 'package:project_fly/providers/settings.dart' as settings;
 import 'package:project_fly/pages/homepage.dart';
@@ -44,6 +45,7 @@ class Fly extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => settings.Settings()),
         ChangeNotifierProvider(create: (_) => PageProvider()),
         ChangeNotifierProvider(create: (_) => SongProvier()),
+        ChangeNotifierProvider(create: (_) => DatabaseProvider()),
       ],
       child: ResponsiveSizer(
         builder: (context, orientation, deviceType) {
@@ -145,3 +147,4 @@ const darkColorScheme = ColorScheme(
 //     }
 //   });
 // }
+

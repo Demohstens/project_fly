@@ -22,11 +22,13 @@ class HistorySubpage extends StatelessWidget {
         ),
         Divider(),
         if (userData.history.isNotEmpty)
-          for (HistorySongObject hso in userData.history.reversed.map((e) =>
-              HistorySongObject(
-                  song: RenderedSong.fromSongData(e['song']),
-                  time: DateTime.parse(e['time']))))
-            HistoryListItem(history: hso)
+          for (HistorySongObject hso in userData.history.reversed.map(
+            (e) => HistorySongObject(
+              song: RenderedSong.fromSongData(e['song']),
+              time: DateTime.parse(e['time']),
+            ),
+          ))
+            HistoryListItem(history: hso),
       ],
     );
   }

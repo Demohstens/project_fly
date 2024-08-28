@@ -19,9 +19,14 @@ class FlyDrawer extends StatelessWidget {
             title: const Text('Settings'),
             onTap: () {
               Navigator.pop(context);
-              Navigator.push(context, MaterialPageRoute(builder: (context) {
-                return const SettingsPage();
-              }));
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) {
+                    return const SettingsPage();
+                  },
+                ),
+              );
             },
           ),
           ListTile(

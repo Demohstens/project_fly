@@ -41,7 +41,7 @@ Future<MediaItem?> songFromFile(File f) async {
   //     : Image.memory(metadata.pictures.first.bytes);
   // var lyrics = 'Lyrics not implemented yet :c'; // TODO Implement lyrics
   // var source = DeviceFileSource(f.path);
-  var releaseDateYear = releaseDate == null ? null : releaseDate.year;
+  var releaseDateYear = releaseDate?.year;
   return MediaItem(
     title: title,
     artist: artist,
@@ -145,5 +145,17 @@ class RenderedSong {
       genre: genre,
       duration: duration,
     );
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'title': title,
+      'artist': artist,
+      'album': album,
+      'genre': genre,
+      'year': releaseDateYear,
+      'duration': duration.inMilliseconds,
+      'path': path,
+    };
   }
 }

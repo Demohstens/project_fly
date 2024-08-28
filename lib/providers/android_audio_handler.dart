@@ -17,9 +17,12 @@ class AndroidAudioHandler extends BaseAudioHandler {
   // * Constructor * //
   AndroidAudioHandler() {
     _registerListeners();
-    playbackState.add(playbackState.value.copyWith(
+    playbackState.add(
+      playbackState.value.copyWith(
         controls: [MediaControl.play],
-        processingState: AudioProcessingState.idle));
+        processingState: AudioProcessingState.idle,
+      ),
+    );
     _player.setVolume(0.15);
   }
 
@@ -28,9 +31,12 @@ class AndroidAudioHandler extends BaseAudioHandler {
 
   // * SETTERS * //
   set mediaItem(BehaviorSubject<MediaItem?> value) {
-    playbackState.add(playbackState.value.copyWith(
+    playbackState.add(
+      playbackState.value.copyWith(
         controls: [MediaControl.play],
-        processingState: AudioProcessingState.idle));
+        processingState: AudioProcessingState.idle,
+      ),
+    );
     mediaItem = value;
   }
 
@@ -93,10 +99,12 @@ class AndroidAudioHandler extends BaseAudioHandler {
     // Wait for the player to be ready. This is arbitrary.
     // However an await on setAudioSource does not work.
     await Future.delayed(
-        const Duration(milliseconds: 100)); // Adjust delay as needed
+      const Duration(milliseconds: 100),
+    ); // Adjust delay as needed
 
     _player.play();
-    playbackState.add(playbackState.value.copyWith(
+    playbackState.add(
+      playbackState.value.copyWith(
         playing: true,
         controls: [
           MediaControl.skipToPrevious,
@@ -104,13 +112,16 @@ class AndroidAudioHandler extends BaseAudioHandler {
           MediaControl.skipToNext,
         ],
         processingState: AudioProcessingState.ready,
-        systemActions: {MediaAction.seek}));
+        systemActions: {MediaAction.seek},
+      ),
+    );
     generateQueue();
   }
 
   @override
   Future<void> pause() async {
-    playbackState.add(playbackState.value.copyWith(
+    playbackState.add(
+      playbackState.value.copyWith(
         playing: false,
         controls: [
           MediaControl.skipToPrevious,
@@ -118,7 +129,9 @@ class AndroidAudioHandler extends BaseAudioHandler {
           MediaControl.skipToNext,
         ],
         processingState: AudioProcessingState.ready,
-        systemActions: {MediaAction.seek}));
+        systemActions: {MediaAction.seek},
+      ),
+    );
 
     await _player.pause();
   }
@@ -126,10 +139,13 @@ class AndroidAudioHandler extends BaseAudioHandler {
   @override
   Future<void> stop() async {
     await _player.stop();
-    playbackState.add(playbackState.value.copyWith(
+    playbackState.add(
+      playbackState.value.copyWith(
         playing: false,
         controls: [MediaControl.play],
-        processingState: AudioProcessingState.idle));
+        processingState: AudioProcessingState.idle,
+      ),
+    );
   }
 
   @override
@@ -184,10 +200,12 @@ class AndroidAudioHandler extends BaseAudioHandler {
   /* Methods Responsible for managing the Queue */
 
   void generateQueue() {
-    queue.add(userData.songs
-        .sublist(0, userData.songs.length)
-        .map((e) => userData.getMediaItemFromSongData(e))
-        .toList());
+    queue.add(
+      userData.songs
+          .sublist(0, userData.songs.length)
+          .map((e) => userData.getMediaItemFromSongData(e))
+          .toList(),
+    );
   }
 
   @override
