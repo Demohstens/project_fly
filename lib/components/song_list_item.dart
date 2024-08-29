@@ -4,7 +4,7 @@ import 'package:project_fly/main.dart';
 import 'package:project_fly/models/song.dart';
 
 class SongListitem extends StatefulWidget {
-  final MediaItem song;
+  final RenderedSong song;
   SongListitem({required this.song});
 
   @override
@@ -12,17 +12,15 @@ class SongListitem extends StatefulWidget {
 }
 
 class _SongListitemState extends State<SongListitem> {
-  late RenderedSong renderedSong = RenderedSong.fromMediaItem(widget.song);
-
   @override
   Widget build(BuildContext context) {
     return ListTile(
       onTap: () {
-        audioHandler.playMediaItem(widget.song);
+        audioHandler.playMediaItem(widget.song.toMediaItem());
       },
-      title: Text(renderedSong.title),
-      subtitle: Text(renderedSong.artist ?? ""),
-      leading: renderedSong.albumArt,
+      title: Text(widget.song.title),
+      subtitle: Text(widget.song.artist ?? ""),
+      leading: widget.song.albumArt,
       trailing: const Icon(Icons.more_vert),
     );
   }

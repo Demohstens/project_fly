@@ -104,7 +104,7 @@ class RenderedSong {
         source: AudioSource.file(songData['path'] as String),
         artist: songData['artist'] as String?,
         genre: songData['genre'] as String?,
-        releaseDateYear: songData['releaseDateYear'] as int?,
+        releaseDateYear: songData['year'] as int?,
         lyrics: songData['lyrics'] as String?,
       );
     }

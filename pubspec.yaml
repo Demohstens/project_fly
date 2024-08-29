@@ -57,6 +57,8 @@ dependencies:
   sqflite: ^2.3.3+1
   path: any
   infinite_scroll_pagination: ^4.0.0
+  sqflite_common_ffi: ^2.3.3
+  sqlite3_flutter_libs: any
 
 dev_dependencies:
   flutter_test:

@@ -1,7 +1,11 @@
+import 'dart:developer';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:project_fly/models/song.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart' as path;
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 class DatabaseProvider extends ChangeNotifier {
   DatabaseProvider() {
@@ -17,6 +21,11 @@ class DatabaseProvider extends ChangeNotifier {
   // * Database Initialization * //
 
   void _initDatabase() async {
+    if (Platform.isWindows || Platform.isLinux) {
+      sqfliteFfiInit();
+    }
+    databaseFactory = databaseFactoryFfi;
+
     _db = await openDatabase(
       path.join(
         await getDatabasesPath(),
@@ -33,14 +42,14 @@ class DatabaseProvider extends ChangeNotifier {
           genre TEXT,
           year INTEGER,
           duration INTEGER,
-          path TEXT NOT NULL, 
+          path TEXT NOT NULL
         )
       ''');
         // Create a table to store playlists
         await _db.execute('''
         CREATE TABLE Playlists (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
-          name TEXT
+          title TEXT
         )
       ''');
         // Create a table to store songs in playlists
@@ -57,7 +66,6 @@ class DatabaseProvider extends ChangeNotifier {
         // Create a table to store history
         await _db.execute('''
         CREATE TABLE History (
-          id INTEGER PRIMARY KEY AUTOINCREMENT,
           song_id INTEGER NOT NULL,
           timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
           action TEXT, 
@@ -67,6 +75,7 @@ class DatabaseProvider extends ChangeNotifier {
       ''');
         // Use Action to store how the user interacted with the song
       },
+      version: 1,
     );
   }
 
@@ -92,6 +101,15 @@ class DatabaseProvider extends ChangeNotifier {
     });
   }
 
+  void addSongToHistory(int songId, String action, int duration) async {
+    await _db.insert('History', {
+      'song_id': songId,
+      'action': action,
+      'duration': duration,
+      'timestamp': DateTime.now().toIso8601String(),
+    });
+  }
+
   // Update
   void updateSong(RenderedSong song) async {
     await _db.update(
@@ -100,6 +118,21 @@ class DatabaseProvider extends ChangeNotifier {
       where: 'id = ?',
       whereArgs: [song.id],
     );
+  }
+
+  Future<void> updateOrCreateSong(RenderedSong song) async {
+    final affectedRows = await _db.update(
+      'Songs',
+      song.toMap(),
+      where: 'id = ?',
+      whereArgs: [song.id],
+    );
+
+    if (affectedRows == 0) {
+      log("adding song to database");
+      // No existing song found, so insert
+      await _db.insert('Songs', song.toMap());
+    }
   }
 
   // Delete
@@ -122,6 +155,20 @@ class DatabaseProvider extends ChangeNotifier {
   ''',
       [playlistId],
     );
+  }
+
+  Future<List<RenderedSong>> getSongsPaginated(int page,
+      // ignore: require_trailing_commas
+      {int pageSize = 20}) async {
+    final offset = page * pageSize;
+    List listOfSongData = await _db.query(
+      'Songs',
+      limit: pageSize,
+      offset: offset,
+    );
+    return listOfSongData.map((songData) {
+      return RenderedSong.fromSongData(songData);
+    }).toList();
   }
 
   Future<int> getTotalSongCount() async {

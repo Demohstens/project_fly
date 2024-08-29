@@ -9,6 +9,7 @@ import 'package:project_fly/models/userdata.dart';
 import 'package:project_fly/providers/song_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
+import 'package:sqflite/sqflite.dart';
 
 late AndroidAudioHandler audioHandler;
 UserData userData = UserData();
@@ -42,10 +43,18 @@ class Fly extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => settings.Settings()),
+        ChangeNotifierProvider(create: (_) => DatabaseProvider()),
+        ChangeNotifierProxyProvider<DatabaseProvider, settings.Settings>(
+          create: (context) => settings.Settings(
+              databaseProvider:
+                  Provider.of<DatabaseProvider>(context, listen: false)),
+          update: (context, databaseProvider, previousOtherProvider) =>
+              previousOtherProvider ??
+              settings.Settings(databaseProvider: databaseProvider),
+// Update if needed
+        ),
         ChangeNotifierProvider(create: (_) => PageProvider()),
         ChangeNotifierProvider(create: (_) => SongProvier()),
-        ChangeNotifierProvider(create: (_) => DatabaseProvider()),
       ],
       child: ResponsiveSizer(
         builder: (context, orientation, deviceType) {

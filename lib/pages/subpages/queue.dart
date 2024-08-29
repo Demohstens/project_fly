@@ -22,7 +22,8 @@ class QueuePage extends StatelessWidget {
         ),
         Divider(),
         for (MediaItem song in audioHandler.queue.value)
-          SongListitem(song: song)
+          // SongListitem(song: song)
+          Placeholder(),
       ],
     );
   }

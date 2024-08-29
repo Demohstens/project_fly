@@ -8,6 +8,8 @@ import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:project_fly/components/favorite_cards.dart';
 import 'package:project_fly/main.dart';
+import 'package:project_fly/models/song.dart';
+import 'package:project_fly/providers/database_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 import 'package:path/path.dart';
@@ -15,8 +17,9 @@ import 'package:path/path.dart';
 class Settings extends ChangeNotifier {
   // * SHARED PREFERENCES * //
   late SharedPreferences _settings;
+  DatabaseProvider databaseProvider;
 
-  Settings() {
+  Settings({required this.databaseProvider}) {
     SharedPreferences.getInstance().then((value) {
       _settings = value;
       _isDarkMode = _settings.getBool("isDarkMode") ?? false;
@@ -149,7 +152,8 @@ class Settings extends ChangeNotifier {
                 dev.log("CANNOT LOAD METADATA ", error: e);
                 continue;
               }
-
+              databaseProvider
+                  .updateOrCreateSong(RenderedSong.fromSongData(newSongData));
               outputList.add(newSongData);
             }
           }
