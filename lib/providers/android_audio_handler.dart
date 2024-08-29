@@ -1,8 +1,10 @@
 import 'dart:async';
 import 'package:audio_service/audio_service.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:path/path.dart';
 import 'package:project_fly/main.dart';
 import 'package:project_fly/models/song.dart';
+import 'package:project_fly/providers/database_provider.dart';
 import 'package:rxdart/rxdart.dart';
 
 class AndroidAudioHandler extends BaseAudioHandler {
@@ -52,15 +54,15 @@ class AndroidAudioHandler extends BaseAudioHandler {
     _player.setAudioSource(song.source, preload: true);
 
     play();
-    userData.addSongToHistory(song);
+    // TODO add song to history
   }
 
-  @override
-  Future<void> playMediaItem(MediaItem mediaItem) async {
-    // Creates an audio source from the media item
-    RenderedSong currentSongRendered = RenderedSong.fromMediaItem(mediaItem);
-    playRenderedSong(currentSongRendered);
-  }
+  // @override
+  // Future<void> playMediaItem(MediaItem mediaItem) async {
+  //   // Creates an audio source from the media item
+  //   RenderedSong currentSongRendered = RenderedSong.fromMediaItem(mediaItem);
+  //   playRenderedSong(currentSongRendered);
+  // }
 
   @override
   Future<void> click([MediaButton button = MediaButton.media]) async {
@@ -153,7 +155,7 @@ class AndroidAudioHandler extends BaseAudioHandler {
     if (queueIndex + 1 >= queue.value.length) return;
     MediaItem nextSong = queue.value[queueIndex + 1];
     playMediaItem(nextSong);
-    userData.addSongToHistory(RenderedSong.fromMediaItem(nextSong));
+    // TODO add song to history
 
     queueIndex++;
   }
@@ -171,8 +173,6 @@ class AndroidAudioHandler extends BaseAudioHandler {
     }
     MediaItem lastSong = queue.value[queueIndex - 1];
     playMediaItem(lastSong);
-    userData.addSongToHistory(RenderedSong.fromMediaItem(lastSong));
-
     queueIndex--;
   }
 
@@ -200,12 +200,13 @@ class AndroidAudioHandler extends BaseAudioHandler {
   /* Methods Responsible for managing the Queue */
 
   void generateQueue() {
-    queue.add(
-      userData.songs
-          .sublist(0, userData.songs.length)
-          .map((e) => userData.getMediaItemFromSongData(e))
-          .toList(),
-    );
+    // TODO implement queue generation with  database
+    // queue.add(
+    //   userData.songs
+    //       .sublist(0, userData.songs.length)
+    //       .map((e) => userData.getMediaItemFromSongData(e))
+    //       .toList(),
+    // );
   }
 
   @override

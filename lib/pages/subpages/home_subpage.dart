@@ -26,7 +26,6 @@ class ListOfSongs extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     log("Building ListOfSongs");
-    List<MediaItem> songs = userData.mediaItems;
     final favoriteCards = context.watch<Settings>().favoriteCards;
 
     return RefreshIndicator(
@@ -135,31 +134,35 @@ class _PagedSongListState extends State<PagedSongList> {
   }
 
   Future<void> _fetchPage(int pageKey) async {
-    try {
-      final newItems = await context.read<DatabaseProvider>().getSongsPaginated(
-            pageKey,
-            pageSize: _pageSize,
-          );
-      final isLastPage = newItems.length < _pageSize;
-      if (isLastPage) {
-        _pagingController.appendLastPage(newItems);
-      } else {
-        final nextPageKey = pageKey + newItems.length;
-        _pagingController.appendPage(newItems, nextPageKey);
-      }
-    } catch (error) {
-      _pagingController.error = error;
+    // try {
+    final newItems = await context.read<DatabaseProvider>().getSongsPaginated(
+          pageKey,
+          pageSize: _pageSize,
+        );
+    final isLastPage = newItems.length < _pageSize;
+    if (isLastPage) {
+      _pagingController.appendLastPage(newItems);
+    } else {
+      final nextPageKey = pageKey + newItems.length;
+      _pagingController.appendPage(newItems, nextPageKey);
     }
+    // }
+    // catch (error) {
+    //   log("Error fetching page: $error");
+    //   _pagingController.error = error;
+    // }
   }
 
   @override
   Widget build(BuildContext context) {
     return PagedListView(
-        pagingController: _pagingController,
-        builderDelegate: PagedChildBuilderDelegate<RenderedSong>(
-            itemBuilder: (context, item, index) {
+      pagingController: _pagingController,
+      builderDelegate: PagedChildBuilderDelegate<RenderedSong>(
+        itemBuilder: (context, item, index) {
           return SongListitem(song: item);
-        }));
+        },
+      ),
+    );
   }
 
   @override

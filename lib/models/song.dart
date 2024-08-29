@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:audio_service/audio_service.dart';
@@ -5,6 +6,7 @@ import 'package:audiotags/audiotags.dart';
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:path/path.dart' as path;
+import 'package:project_fly/providers/database_provider.dart';
 import 'package:uuid/uuid.dart';
 
 Future<MediaItem?> songFromFile(File f) async {
@@ -61,7 +63,7 @@ class RenderedSong {
   final String? lyrics;
   final AudioSource source;
 
-  final String id;
+  final int id;
   final String path;
   final String title;
   final String? artist;
@@ -96,11 +98,10 @@ class RenderedSong {
   factory RenderedSong.fromSongData(Map<String, dynamic> songData) {
     if (songData['id'] != null) {
       return RenderedSong(
-        id: songData['id'] as String,
+        id: songData['id'],
         path: songData['path'] as String,
         title: songData['title'] as String,
-        duration:
-            Duration(milliseconds: int.tryParse(songData['duration']) ?? 0),
+        duration: Duration(milliseconds: (songData['duration']) ?? 0),
         source: AudioSource.file(songData['path'] as String),
         artist: songData['artist'] as String?,
         genre: songData['genre'] as String?,
@@ -111,24 +112,32 @@ class RenderedSong {
     return RenderedSong.empty();
   }
 
-  factory RenderedSong.fromMediaItem(MediaItem item) {
-    String path = item.extras!['path'] as String;
-    return RenderedSong(
-      id: item.id,
-      path: path,
-      title: item.title,
-      duration: item.duration!, // TODO write proper handling of no duration
-      source: AudioSource.file(path),
-      artist: item.artist,
-      genre: item.genre,
-      releaseDateYear: item.extras!['year'],
-      lyrics: null,
+  factory RenderedSong.fromMediaItem(MediaItem item, DatabaseProvider db) {
+    db.getSongPath(int.parse(item.id)).then(
+      (itemPath) {
+        if (itemPath == null) {
+          return RenderedSong.empty();
+        }
+        return RenderedSong(
+          id: int.parse(item.id),
+          path: itemPath,
+          title: item.title,
+          duration: item.duration!, // TODO write proper handling of no duration
+          source: AudioSource.file(itemPath),
+          artist: item.artist,
+          genre: item.genre,
+          releaseDateYear: item.extras!['year'],
+          lyrics: null,
+        );
+      },
     );
+    log("Failed to get song path for song with id ${item.id} line 134 song.dart");
+    return RenderedSong.empty();
   }
 
   factory RenderedSong.empty() {
     return RenderedSong(
-      id: '',
+      id: 0,
       path: '',
       title: '',
       duration: Duration.zero,
@@ -138,7 +147,7 @@ class RenderedSong {
 
   MediaItem toMediaItem() {
     return MediaItem(
-      id: id,
+      id: id.toString(),
       album: album,
       title: title,
       artist: artist,

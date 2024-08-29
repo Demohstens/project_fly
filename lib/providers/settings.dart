@@ -84,86 +84,51 @@ class Settings extends ChangeNotifier {
 
   void updateSongList() async {
     DateTime _perf1 = DateTime.now();
-    List<Map<String, dynamic>> _songList = [];
     for (Directory dir in _musicDirectories) {
-      List<Map<String, dynamic>> a = await depthSearchFolder(dir);
-      _songList.addAll(a);
+      depthSearchFolder(dir);
     }
 
-    userData.songs = _songList;
-
-    userData.saveData();
     DateTime _perf2 = DateTime.now();
     dev.log('Data updated in ${_perf2.difference(_perf1).inMilliseconds}ms');
   }
 
-  Future<List<Map<String, dynamic>>> depthSearchFolder(
+  void depthSearchFolder(
     Directory dir,
   ) async {
-    List<Map<String, dynamic>> outputList = [];
     dev.log("Searching folder: ${dir.path}");
     await for (FileSystemEntity entity
         in dir.list(recursive: true, followLinks: false)) {
       if (entity is File) {
         String ext = entity.path.split('.').last;
         if (ext == 'mp3' || ext == 'm4a' || ext == 'flac' || ext == 'mp4') {
-          if (!userData.songExistsPath(entity.path)) {
-            try {
-              Tag? metadata = await AudioTags.read(entity.path);
-              outputList.add({
-                'id': const Uuid().v4(),
-                'title': metadata?.title ?? parseFileNameIntiTitle(entity.path),
-                'artist': metadata?.trackArtist ??
-                    parseFileNameIntoArtist(entity.path),
-                'album': metadata?.album,
-                'duration': (metadata?.duration != null
-                        ? metadata!.duration! * 1000
-                        : 0)
-                    .toString(),
-                'path': entity.path,
-              });
-            } catch (e) {
-              dev.log("CANNOT LOAD METADATA $e");
-              continue;
-            }
+          Map<String, dynamic> newSongData;
+          try {
+            Tag? metadata = await AudioTags.read(entity.path);
+            var newSongData = ({
+              'id': const Uuid().v4(),
+              'title': metadata?.title ?? parseFileNameIntiTitle(entity.path),
+              'artist':
+                  metadata?.trackArtist ?? parseFileNameIntoArtist(entity.path),
+              'album': metadata?.album,
+              'duration':
+                  (metadata?.duration != null ? metadata!.duration! * 1000 : 0)
+                      .toString(),
+              'path': entity.path,
+            });
+
+            databaseProvider
+                .updateOrCreateSong(RenderedSong.fromSongData(newSongData));
+          } catch (e) {
+            dev.log("CANNOT LOAD METADATA $e");
+            continue;
           }
           // File already exists in the song list
-          else {
-            Map<String, dynamic> songData =
-                userData.getSongDataFromPath(entity.path);
-            // Ensure that the file still exists AND that the file is the same
-            File f = File(songData['path']);
-            Map<String, dynamic> newSongData = songData;
-            if (f.existsSync()) {
-              try {
-                Tag? metadata = await AudioTags.read(entity.path);
-                newSongData = {
-                  'id': songData['id'],
-                  'title': metadata?.title ?? songData['title'],
-                  'artist': metadata?.trackArtist ?? songData['artist'],
-                  'album': metadata?.album ?? songData['album'],
-                  'duration': (metadata?.duration != null
-                          ? metadata!.duration! * 1000
-                          : songData['duration'])
-                      .toString(),
-                  'path': entity.path,
-                };
-              } catch (e) {
-                dev.log("CANNOT LOAD METADATA ", error: e);
-                continue;
-              }
-              databaseProvider
-                  .updateOrCreateSong(RenderedSong.fromSongData(newSongData));
-              outputList.add(newSongData);
-            }
-          }
-        } else if (entity is Directory) {
-          // Optional: Uncomment if you want to recurse into directories as they are found
-          // await depthSearchFolder(entity);
         }
+      } else if (entity is Directory) {
+        // Optional: Uncomment if you want to recurse into directories as they are found
+        // await depthSearchFolder(entity);
       }
     }
-    return outputList;
   }
 
   void addDirectory(Directory dir) {
@@ -187,7 +152,7 @@ class Settings extends ChangeNotifier {
   void clearData() {
     _settings.clear();
     _musicDirectories = [];
-    userData.clearData();
+    databaseProvider.clearDatabase();
     notifyListeners();
   }
 }

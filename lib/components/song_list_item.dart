@@ -16,7 +16,7 @@ class _SongListitemState extends State<SongListitem> {
   Widget build(BuildContext context) {
     return ListTile(
       onTap: () {
-        audioHandler.playMediaItem(widget.song.toMediaItem());
+        audioHandler.playRenderedSong(widget.song);
       },
       title: Text(widget.song.title),
       subtitle: Text(widget.song.artist ?? ""),

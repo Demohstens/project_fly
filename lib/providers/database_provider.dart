@@ -20,7 +20,7 @@ class DatabaseProvider extends ChangeNotifier {
 
   // * Database Initialization * //
 
-  void _initDatabase() async {
+  Future<bool> _initDatabase() async {
     if (Platform.isWindows || Platform.isLinux) {
       sqfliteFfiInit();
     }
@@ -74,9 +74,19 @@ class DatabaseProvider extends ChangeNotifier {
         )
       ''');
         // Use Action to store how the user interacted with the song
+
+        // Create a table to store liked songs
+        await _db.execute('''
+          CREATE TABLE LikedSongs (
+          song_id INTEGER NOT NULL,
+          FOREIGN KEY(song_id) REFERENCES Songs(id) ON DELETE CASCADE,
+          PRIMARY KEY(song_id)
+      )
+    ''');
       },
       version: 1,
     );
+    return true;
   }
 
   // * CRUD Operations * //
@@ -85,6 +95,8 @@ class DatabaseProvider extends ChangeNotifier {
 
   /// Insert a song into the database and returns the id of the inserted song
   Future<int> insertSong(RenderedSong song) async {
+    await _initDatabase(); // Ensure the database is initialized
+
     var songID = await _db.insert('Songs', song.toMap());
     getTotalSongCount();
     return songID;
@@ -102,6 +114,8 @@ class DatabaseProvider extends ChangeNotifier {
   }
 
   void addSongToHistory(int songId, String action, int duration) async {
+    await _initDatabase(); // Ensure the database is initialized
+
     await _db.insert('History', {
       'song_id': songId,
       'action': action,
@@ -121,6 +135,8 @@ class DatabaseProvider extends ChangeNotifier {
   }
 
   Future<void> updateOrCreateSong(RenderedSong song) async {
+    await _initDatabase(); // Ensure the database is initialized
+
     final affectedRows = await _db.update(
       'Songs',
       song.toMap(),
@@ -160,6 +176,8 @@ class DatabaseProvider extends ChangeNotifier {
   Future<List<RenderedSong>> getSongsPaginated(int page,
       // ignore: require_trailing_commas
       {int pageSize = 20}) async {
+    await _initDatabase(); // Ensure the database is initialized
+
     final offset = page * pageSize;
     List listOfSongData = await _db.query(
       'Songs',
@@ -177,5 +195,24 @@ class DatabaseProvider extends ChangeNotifier {
     _songCount = songCount;
     notifyListeners();
     return songCount;
+  }
+
+  Future<String?> getSongPath(int songId) async {
+    final result = await _db.query(
+      'Songs',
+      columns: ['path'],
+      where: 'id = ?',
+      whereArgs: [songId],
+    );
+    return result.isNotEmpty ? result.first['path'].toString() : null;
+  }
+
+  Future<void> clearDatabase() async {
+    await _db.execute('DELETE FROM Songs');
+    await _db.execute('DELETE FROM Playlists');
+    await _db.execute('DELETE FROM PlaylistSongs');
+    await _db.execute('DELETE FROM History');
+    await _db.execute(
+        'DELETE FROM LikedSongs'); // If you implemented the liked songs table
   }
 }
