@@ -9,7 +9,6 @@ import 'package:project_fly/models/userdata.dart';
 import 'package:project_fly/providers/song_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
-import 'package:sqflite/sqflite.dart';
 
 late AndroidAudioHandler audioHandler;
 UserData userData = UserData();

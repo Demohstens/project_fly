@@ -23,8 +23,8 @@ class DatabaseProvider extends ChangeNotifier {
   Future<bool> _initDatabase() async {
     if (Platform.isWindows || Platform.isLinux) {
       sqfliteFfiInit();
+      databaseFactory = databaseFactoryFfi;
     }
-    databaseFactory = databaseFactoryFfi;
 
     _db = await openDatabase(
       path.join(
@@ -134,20 +134,26 @@ class DatabaseProvider extends ChangeNotifier {
     );
   }
 
-  Future<void> updateOrCreateSong(RenderedSong song) async {
+  Future<void> updateOrCreateSong(Map<String, dynamic> songData) async {
+    if (File(songData["path"]).existsSync() == false) {
+      log("Song file does not exist, ${songData['path']}");
+      return;
+    }
+
     await _initDatabase(); // Ensure the database is initialized
+    log("Updating song in database");
 
     final affectedRows = await _db.update(
       'Songs',
-      song.toMap(),
+      songData,
       where: 'id = ?',
-      whereArgs: [song.id],
+      whereArgs: [songData['id']],
     );
 
     if (affectedRows == 0) {
       log("adding song to database");
       // No existing song found, so insert
-      await _db.insert('Songs', song.toMap());
+      await _db.insert('Songs', songData);
     }
   }
 
@@ -214,5 +220,6 @@ class DatabaseProvider extends ChangeNotifier {
     await _db.execute('DELETE FROM History');
     await _db.execute(
         'DELETE FROM LikedSongs'); // If you implemented the liked songs table
+    log('Database cleared');
   }
 }

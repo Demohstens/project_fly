@@ -5,7 +5,7 @@ import 'package:project_fly/models/song.dart';
 
 class SongListitem extends StatefulWidget {
   final RenderedSong song;
-  SongListitem({required this.song});
+  const SongListitem({super.key, required this.song});
 
   @override
   _SongListitemState createState() => _SongListitemState();

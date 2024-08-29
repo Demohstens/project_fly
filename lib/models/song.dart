@@ -83,67 +83,69 @@ class RenderedSong {
     this.albumArt,
     this.lyrics,
   }) {
-    Tag? tag;
-    AudioTags.read(path).then((e) => tag = e);
-    if (tag != null) {
-      if (tag!.pictures.isNotEmpty) {
-        albumArt = Image.memory(tag!.pictures.first.bytes);
+    if (File(path).existsSync()) {
+      Tag? tag;
+      AudioTags.read(path).then((e) => tag = e);
+      if (tag != null) {
+        if (tag!.pictures.isNotEmpty) {
+          albumArt = Image.memory(tag!.pictures.first.bytes);
+        } else {
+          albumArt = Image.asset("assets/images/placeholder_album_art.png");
+        }
       } else {
         albumArt = Image.asset("assets/images/placeholder_album_art.png");
       }
     } else {
+      log("File does not exist at path $path. Cannot load album art");
       albumArt = Image.asset("assets/images/placeholder_album_art.png");
     }
   }
   factory RenderedSong.fromSongData(Map<String, dynamic> songData) {
-    if (songData['id'] != null) {
-      return RenderedSong(
-        id: songData['id'],
-        path: songData['path'] as String,
-        title: songData['title'] as String,
-        duration: Duration(milliseconds: (songData['duration']) ?? 0),
-        source: AudioSource.file(songData['path'] as String),
-        artist: songData['artist'] as String?,
-        genre: songData['genre'] as String?,
-        releaseDateYear: songData['year'] as int?,
-        lyrics: songData['lyrics'] as String?,
-      );
-    }
-    return RenderedSong.empty();
-  }
-
-  factory RenderedSong.fromMediaItem(MediaItem item, DatabaseProvider db) {
-    db.getSongPath(int.parse(item.id)).then(
-      (itemPath) {
-        if (itemPath == null) {
-          return RenderedSong.empty();
-        }
-        return RenderedSong(
-          id: int.parse(item.id),
-          path: itemPath,
-          title: item.title,
-          duration: item.duration!, // TODO write proper handling of no duration
-          source: AudioSource.file(itemPath),
-          artist: item.artist,
-          genre: item.genre,
-          releaseDateYear: item.extras!['year'],
-          lyrics: null,
-        );
-      },
-    );
-    log("Failed to get song path for song with id ${item.id} line 134 song.dart");
-    return RenderedSong.empty();
-  }
-
-  factory RenderedSong.empty() {
     return RenderedSong(
-      id: 0,
-      path: '',
-      title: '',
-      duration: Duration.zero,
-      source: AudioSource.uri(Uri()),
+      id: songData['id'],
+      path: songData['path'],
+      title: songData['title'] as String,
+      duration: Duration(milliseconds: (songData['duration']) ?? 0),
+      source: AudioSource.file(songData['path'] as String),
+      artist: songData['artist'] as String?,
+      genre: songData['genre'] as String?,
+      releaseDateYear: songData['year'] as int?,
+      lyrics: songData['lyrics'] as String?,
     );
   }
+
+  // factory RenderedSong.fromMediaItem(MediaItem item, DatabaseProvider db) {
+  //   db.getSongPath(int.parse(item.id)).then(
+  //     (itemPath) {
+  //       log(itemPath.toString());
+  //       if (itemPath == null) {
+  //         return RenderedSong.empty();
+  //       }
+  //       return RenderedSong(
+  //         id: int.parse(item.id),
+  //         path: itemPath,
+  //         title: item.title,
+  //         duration: item.duration!, // TODO write proper handling of no duration
+  //         source: AudioSource.file(itemPath),
+  //         artist: item.artist,
+  //         genre: item.genre,
+  //         releaseDateYear: item.extras!['year'],
+  //         lyrics: null,
+  //       );
+  //     },
+  //   );
+  //   log("Failed to get song path for song with id ${item.id} line 134 song.dart");
+  // }
+
+  // factory RenderedSong.empty() {
+  //   return RenderedSong(
+  //     id: 0,
+  //     path: '',
+  //     title: '',
+  //     duration: Duration.zero,
+  //     source: AudioSource.uri(Uri()),
+  //   );
+  // }
 
   MediaItem toMediaItem() {
     return MediaItem(

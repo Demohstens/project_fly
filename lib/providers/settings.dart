@@ -104,8 +104,7 @@ class Settings extends ChangeNotifier {
           Map<String, dynamic> newSongData;
           try {
             Tag? metadata = await AudioTags.read(entity.path);
-            var newSongData = ({
-              'id': const Uuid().v4(),
+            newSongData = ({
               'title': metadata?.title ?? parseFileNameIntiTitle(entity.path),
               'artist':
                   metadata?.trackArtist ?? parseFileNameIntoArtist(entity.path),
@@ -115,9 +114,8 @@ class Settings extends ChangeNotifier {
                       .toString(),
               'path': entity.path,
             });
-
-            databaseProvider
-                .updateOrCreateSong(RenderedSong.fromSongData(newSongData));
+            dev.log("Adding song to database: ${newSongData['path']}");
+            databaseProvider.updateOrCreateSong(newSongData);
           } catch (e) {
             dev.log("CANNOT LOAD METADATA $e");
             continue;
